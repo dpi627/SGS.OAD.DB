@@ -1,33 +1,34 @@
-﻿namespace SGS.OAD.DB;
-
-public class ConnectionStringBuilder
+﻿namespace SGS.OAD.DB
 {
-    private string _server = string.Empty;
-    private string _database = string.Empty;
-    private string _connectionStringTemplate = @"server={0}, db={1}";
-
-    public static ConnectionStringBuilder Empty() => new();
-
-    public ConnectionStringBuilder SetSever(string serverName)
+    public class ConnectionStringBuilder
     {
-        _server = serverName;
-        return this;
-    }
+        private string _server = string.Empty;
+        private string _database = string.Empty;
+        private string _connectionStringTemplate = @"server={0}, db={1}";
 
-    public ConnectionStringBuilder SetDatabase(string databaseName)
-    {
-        _database = databaseName;
-        return this;
-    }
+        public static ConnectionStringBuilder Empty() => new();
 
-    public ConnectionStringBuilder SetTemplate(string connectionStringTemplate)
-    {
-        _connectionStringTemplate = connectionStringTemplate;
-        return this;
-    }
+        public ConnectionStringBuilder SetSever(string serverName)
+        {
+            _server = serverName;
+            return this;
+        }
 
-    public string Build()
-    {
-        return string.Format(_connectionStringTemplate, _server, _database);
+        public ConnectionStringBuilder SetDatabase(string databaseName)
+        {
+            _database = databaseName;
+            return this;
+        }
+
+        public ConnectionStringBuilder SetTemplate(string connectionStringTemplate)
+        {
+            _connectionStringTemplate = connectionStringTemplate;
+            return this;
+        }
+
+        public string Build()
+        {
+            return string.Format(_connectionStringTemplate, _server, _database);
+        }
     }
 }
