@@ -19,7 +19,7 @@ namespace SGS.OAD.DB.Builders
         private ProgramLanguage _language = ProgramLanguage.Csharp; // "CSharp";
         private DatabaseRole _role = DatabaseRole.db_datawriter; // "db_datawriter";
         public readonly ApiUrlBuilder _apiUrlBuilder = ApiUrlBuilder.Empty();
-        public UserInfo _userInfo = default;
+        public UserInfo _userInfo = new();
 
         private readonly IUserInfoService _userInfoService;
         private readonly IDecryptService _decryptService;

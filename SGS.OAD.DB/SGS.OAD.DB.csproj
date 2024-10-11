@@ -1,9 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net47;net48;net6.0;net8.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>
+		  net47;
+		  net471;
+		  net472;
+		  net48;
+		  net481;
+		  net6.0;
+		  net8.0;
+      netstandard2.0;
+	  </TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -11,7 +20,7 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>SGS.OAD.DB</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.4</Version>
     <Authors>Brian</Authors>
     <Company>SGS Taiwan Ltd.</Company>
     <Description>SGS Database Library</Description>
@@ -28,16 +37,17 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
-  <!-- 為 .NET Framework 添加 System.Net.Http 依賴 -->
+  <!-- .NET Framework / Standard 需加入 System.Net.Http -->
   <ItemGroup>
-    <!-- 根據需要添加依賴 -->
-    <PackageReference Include="System.Net.Http" Version="4.3.4" Condition="'$(TargetFramework)' == 'net47' OR '$(TargetFramework)' == 'net48'" />
-    <!-- .NET 6 和 .NET 8 通常已包含 HttpClient，不需要額外引用 -->
-  </ItemGroup>
-
-  <!-- 為 .NET Standard 2.0 添加依賴（如有需要） -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" Condition="
+	    '$(TargetFramework)' == 'net47' OR
+	    '$(TargetFramework)' == 'net471' OR
+	    '$(TargetFramework)' == 'net472' OR
+	    '$(TargetFramework)' == 'net48' OR
+	    '$(TargetFramework)' == 'net481' OR
+      '$(TargetFramework)' == 'netstandard2.0'
+	  " />
+    <!-- .NET (Core) 不需額外引用 -->
   </ItemGroup>
 
   <ItemGroup>

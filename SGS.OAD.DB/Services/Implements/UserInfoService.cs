@@ -40,7 +40,7 @@ namespace SGS.OAD.DB.Services.Implements
         }
 
         // Deserialize JSON using DataContractJsonSerializer
-        private T DeserializeJson<T>(string json)
+        private static T DeserializeJson<T>(string json)
         {
             var serializer = new DataContractJsonSerializer(typeof(T));
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(json)))
