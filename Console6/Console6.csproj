@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="SGS.OAD.DB" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SGS.OAD.DB\SGS.OAD.DB.csproj" />
   </ItemGroup>
 

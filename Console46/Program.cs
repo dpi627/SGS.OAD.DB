@@ -1,22 +1,18 @@
-﻿using SGS.OAD.DB;
+﻿using SGS.OAD.DB.Builders;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Console46
+namespace Console47
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            string connectionString = ConnectionStringBuilder.Empty()
-                .SetSever("localhost")
-                .SetDatabase("mydb")
-                .Build();
+            var builder = DbInfoBuilder.Init()
+                .SetServer("TWDB009")
+                .SetDatabase("SGSLims_chem");
 
-            Console.WriteLine(connectionString);
+            var db = builder.Build();
+            Console.WriteLine(db.ConnectionString);
             Console.ReadLine();
         }
     }
