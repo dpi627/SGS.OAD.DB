@@ -1,18 +1,20 @@
 ﻿using SGS.OAD.DB.Builders;
 
-namespace Console6
+namespace Console6;
+
+internal class Program
 {
-    internal class Program
+    static async Task Main()
     {
-        static async Task Main(string[] args)
-        {
-            using var builder = DbInfoBuilder.Init()
-                .SetServer("TWDB009")
-                .SetDatabase("SGSLims_chem");
-
-            var db = builder.Build();
-
-            Console.WriteLine(db.ConnectionString);
-        }
+        // create builder
+        var builder = DbInfoBuilder.Init()
+            .SetServer("TWDB009")
+            .SetDatabase("SGSLims_chem");
+        // build database object
+        var db = builder.Build();
+        Console.WriteLine(db.ConnectionString);
+        // build database object asynchronously
+        db = await builder.BuildAsync();
+        Console.WriteLine(db.ConnectionString);
     }
 }
