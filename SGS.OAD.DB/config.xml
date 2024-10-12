@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<AppSettings>
+  <DES_KEY>23928467</DES_KEY>
+  <DES_VECTOR>22993279</DES_VECTOR>
+  <API_ENDPOINT><![CDATA[http://twws006/Decrypt_Server/ServiceDecryptPW.svc/Get_Decrypt4]]></API_ENDPOINT>
+  <API_URL_PATTERN><![CDATA[{endpoint}?servername={server}&databasename={database}&planguage={language}&databaserole={role}]]></API_URL_PATTERN>
+  <APP_NAME>SYSOP</APP_NAME>
+  <DB_TIMEOUT>30</DB_TIMEOUT>
+  <DB_TRUST_SERVER_CERTIFICATE>true</DB_TRUST_SERVER_CERTIFICATE>
+  <DB_CONNECTION_STRING_PATTERN><![CDATA[Data Source={server};Initial Catalog={database};User ID={uid};Password={pwd};Application Name={app};Connect Timeout={timeout};TrustServerCertificate={servercertificate};]]></DB_CONNECTION_STRING_PATTERN>
+</AppSettings>

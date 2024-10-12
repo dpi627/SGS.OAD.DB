@@ -39,8 +39,8 @@ namespace SGS.OAD.DB.Services.Implements
                     return "";
 
                 string result = "";
-                string key = "23928467";
-                string vector = "22993279";
+                string key = ConfigHelper.GetValue("DES_KEY");
+                string vector = ConfigHelper.GetValue("DES_VECTOR");
 
                 byte[] keys = Encoding.ASCII.GetBytes(key);
                 byte[] iv = Encoding.ASCII.GetBytes(vector);

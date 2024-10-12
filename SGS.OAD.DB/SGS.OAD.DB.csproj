@@ -37,16 +37,17 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="config.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="config.xml" />
+  </ItemGroup>
+
   <!-- .NET Framework / Standard 需加入 System.Net.Http -->
   <ItemGroup>
-    <PackageReference Include="System.Net.Http" Version="4.3.4" Condition="
-	    '$(TargetFramework)' == 'net47' OR
-	    '$(TargetFramework)' == 'net471' OR
-	    '$(TargetFramework)' == 'net472' OR
-	    '$(TargetFramework)' == 'net48' OR
-	    '$(TargetFramework)' == 'net481' OR
-      '$(TargetFramework)' == 'netstandard2.0'
-	  " />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" Condition="&#xD;&#xA;	    '$(TargetFramework)' == 'net47' OR&#xD;&#xA;	    '$(TargetFramework)' == 'net471' OR&#xD;&#xA;	    '$(TargetFramework)' == 'net472' OR&#xD;&#xA;	    '$(TargetFramework)' == 'net48' OR&#xD;&#xA;	    '$(TargetFramework)' == 'net481' OR&#xD;&#xA;      '$(TargetFramework)' == 'netstandard2.0'&#xD;&#xA;	  " />
     <!-- .NET (Core) 不需額外引用 -->
   </ItemGroup>
 

@@ -11,44 +11,43 @@ namespace SGS.OAD.DB.Builders
     /// </summary>
     public class DbInfoBuilder
     {
-        private string _server = string.Empty;
-        private string _database = string.Empty;
-        private string _uid = string.Empty;
-        private string _pwd = string.Empty;
-        private string _appName = "SYSOP"; // system operation
-        private int _timeout = 30;
-        private bool _trustServerCertificate = true;
-        private readonly string _pattern = "Data Source={server};Initial Catalog={database};User ID={uid};Password={pwd};Application Name={app};Connect Timeout={timeout};TrustServerCertificate={servercertificate};";
-        private ProgramLanguage _language = ProgramLanguage.Csharp;
-        private DatabaseRole _databeseRole = DatabaseRole.db_datawriter;
-        public readonly ApiUrlBuilder _apiUrlBuilder = ApiUrlBuilder.Empty();
-        public UserInfo _userInfo;
+        private string _server;
+        private string _database;
+        private string _uid;
+        private string _pwd;
+        private string _appName;
+        private int _timeout;
+        private bool _trustServerCertificate;
+        private string _pattern;
+        private ProgramLanguage _language;
+        private DatabaseRole _databeseRole;
+        private readonly ApiUrlBuilder _apiUrlBuilder;
+        private UserInfo _userInfo;
 
         private readonly IUserInfoService _userInfoService;
         private readonly IDecryptService _decryptService;
 
-        private DbInfoBuilder()
-        {
-            // 直接使用內建
-            _userInfoService = new UserInfoService();
-            _decryptService = new DecryptService();
-        }
-
-        public static DbInfoBuilder Init() => new();
-
         private DbInfoBuilder(
-            IUserInfoService userInfoService,
-            IDecryptService decryptService
+            IUserInfoService userInfoService = null,
+            IDecryptService decryptService = null
             )
         {
             // 注入外部服務，如果沒有使用內建服務
-            _userInfoService = userInfoService ?? throw new ArgumentNullException(nameof(userInfoService));
-            _decryptService = decryptService ?? throw new ArgumentNullException(nameof(decryptService));
+            _userInfoService = userInfoService ?? new UserInfoService();
+            _decryptService = decryptService ?? new DecryptService();
+            // 初始化預設值
+            _apiUrlBuilder = ApiUrlBuilder.Empty();
+            _language = ProgramLanguage.Csharp;
+            _databeseRole = DatabaseRole.db_datawriter;
+            _appName = ConfigHelper.GetValue("APP_NAME");
+            _timeout = ConfigHelper.GetValue<int>("DB_TIMEOUT");
+            _trustServerCertificate = ConfigHelper.GetValue<bool>("DB_TRUST_SERVER_CERTIFICATE");
+            _pattern = ConfigHelper.GetValue("DB_CONNECTION_STRING_PATTERN");
         }
 
         public static DbInfoBuilder Init(
-            IUserInfoService userInfoService,
-            IDecryptService decryptService
+            IUserInfoService userInfoService = null,
+            IDecryptService decryptService = null
             ) => new(userInfoService, decryptService);
 
         /// <summary>

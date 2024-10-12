@@ -9,15 +9,19 @@ namespace SGS.OAD.DB.Builders
     /// </summary>
     public class ApiUrlBuilder
     {
-        private string _endpoint = "http://twws006/Decrypt_Server/ServiceDecryptPW.svc/Get_Decrypt4"; //"https://twws006.sgs.net/Decrypt_Server/ServiceDecryptPW.svc/Get_Decrypt4";
-        private string _server = string.Empty;
-        private string _database = string.Empty;
-        private ProgramLanguage _language = ProgramLanguage.Csharp;
-        private DatabaseRole _role = DatabaseRole.db_datawriter;
-        private readonly string _pattern = "{endpoint}?servername={server}&databasename={database}&planguage={language}&databaserole={role}";
+        private string _endpoint;
+        private string _server;
+        private string _database;
+        private ProgramLanguage _language;
+        private DatabaseRole _role;
+        private readonly string _pattern;
 
-        // 如果要初始化 field 也許寫在 constructor
-        private ApiUrlBuilder() { }
+        private ApiUrlBuilder() {
+            _endpoint = ConfigHelper.GetValue("API_ENDPOINT");
+            _pattern = ConfigHelper.GetValue("API_URL_PATTERN");
+            _language = ProgramLanguage.Csharp;
+            _role = DatabaseRole.db_datawriter;
+        }
 
         public static ApiUrlBuilder Empty() => new();
 
