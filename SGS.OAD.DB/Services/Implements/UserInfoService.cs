@@ -8,47 +8,56 @@ namespace SGS.OAD.DB.Services.Implements
 {
     public class UserInfoService : IUserInfoService
     {
-        private readonly ILogger _logger;
         private static readonly HttpClient _client = new HttpClient();
 
-        public UserInfoService(ILogger logger)
-        {
-            _logger = logger;
-        }
-
-        // 同步方法
+        /// <summary>
+        /// 取得加密的使用者資料
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         public UserInfo GetEncryptedUserInfo(string url)
         {
             return GetEncryptedUserInfoAsync(url).GetAwaiter().GetResult();
         }
 
-        // 异步方法，使用 Task + ContinueWith
+        /// <summary>
+        /// 取得加密的使用者資料
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        /// <exception cref="HttpRequestException"></exception>
         public async Task<UserInfo> GetEncryptedUserInfoAsync(string url)
         {
-            _logger.LogInformation($"Fetch url: {url}");
-
-            // setting request's header here
-
-            var response = await _client.GetAsync(url).ConfigureAwait(false);
-            if (response.IsSuccessStatusCode)
+            using (var request = new HttpRequestMessage(HttpMethod.Get, url))
             {
-                var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                // Deserialize JSON without Newtonsoft.Json
-                var userInfoEncrypt = DeserializeJson<UserInfoJson>(json);
+                // setting request's header here
+                // request.Headers.Add("Custom-Header", "HeaderValue");
 
-                return new UserInfo
+                var response = await _client.SendAsync(request).ConfigureAwait(false);
+                if (response.IsSuccessStatusCode)
                 {
-                    UserId = userInfoEncrypt.ID,
-                    Password = userInfoEncrypt.PW
-                };
-            }
-            else
-            {
-                throw new HttpRequestException($"Can't fetch UserInfo from {url} , status code: {response.StatusCode}");
+                    var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    var userInfoEncrypt = DeserializeJson<UserInfoJson>(json);
+
+                    return new UserInfo
+                    {
+                        UserId = userInfoEncrypt.ID,
+                        Password = userInfoEncrypt.PW
+                    };
+                }
+                else
+                {
+                    throw new HttpRequestException($"Can't fetch UserInfo from {url}, status code: {response.StatusCode}");
+                }
             }
         }
 
-        // Deserialize JSON using DataContractJsonSerializer
+        /// <summary>
+        /// Deserialize JSON string to object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="json"></param>
+        /// <returns></returns>
         private static T DeserializeJson<T>(string json)
         {
             var serializer = new DataContractJsonSerializer(typeof(T));

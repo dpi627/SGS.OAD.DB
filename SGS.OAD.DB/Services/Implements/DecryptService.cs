@@ -7,7 +7,11 @@ namespace SGS.OAD.DB.Services.Implements
 {
     public class DecryptService : IDecryptService
     {
-        //解密後回傳 UserInfo userInfoDecrypt
+        /// <summary>
+        /// 解密使用者資料
+        /// </summary>
+        /// <param name="encryptedUserInfo"></param>
+        /// <returns></returns>
         public UserInfo DecryptUserInfo(UserInfo encryptedUserInfo)
         {
             // 实现解密逻辑
@@ -22,6 +26,11 @@ namespace SGS.OAD.DB.Services.Implements
             };
         }
 
+        /// <summary>
+        /// 解密方法
+        /// </summary>
+        /// <param name="encryptedText">加密字串</param>
+        /// <returns>解密字串</returns>
         private string Decrypt(string encryptedText)
         {
             try
