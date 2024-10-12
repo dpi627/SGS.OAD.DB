@@ -1,9 +1,5 @@
 ﻿using SGS.OAD.DB.Builders;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Console472
 {
@@ -11,12 +7,23 @@ namespace Console472
     {
         static void Main(string[] args)
         {
-            var db = DbInfoBuilder.Init()
-                .SetServer("TWDB009")
-                .SetDatabase("SGSLims_chem")
-                .Build();
-            Console.WriteLine(db.ConnectionString);
-            Console.ReadLine();
+            using (var builder = DbInfoBuilder.Init())
+            {
+                var db = builder
+                    .SetServer("TWDB009")
+                    .SetDatabase("SGSLims_chem")
+                    .Build();
+
+                Console.WriteLine(db.ConnectionString);
+            }
+
+
+            //var builder = DbInfoBuilder.Init()
+            //    .SetServer("TWDB009")
+            //    .SetDatabase("SGSLims_chem");
+            //var db = builder.Build();
+            //Console.WriteLine(db.ConnectionString);
+            //Console.ReadLine();
         }
     }
 }

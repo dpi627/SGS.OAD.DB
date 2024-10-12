@@ -8,7 +8,14 @@ namespace SGS.OAD.DB.Services.Implements
 {
     public class UserInfoService : IUserInfoService
     {
+        private readonly ILogger _logger;
         private static readonly HttpClient _client = new HttpClient();
+
+        public UserInfoService(ILogger logger)
+        {
+            _logger = logger;
+        }
+
         // 同步方法
         public UserInfo GetEncryptedUserInfo(string url)
         {
@@ -18,6 +25,8 @@ namespace SGS.OAD.DB.Services.Implements
         // 异步方法，使用 Task + ContinueWith
         public async Task<UserInfo> GetEncryptedUserInfoAsync(string url)
         {
+            _logger.LogInformation($"Fetch url: {url}");
+
             // setting request's header here
 
             var response = await _client.GetAsync(url).ConfigureAwait(false);

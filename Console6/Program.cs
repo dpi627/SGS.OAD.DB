@@ -1,6 +1,6 @@
 ﻿using SGS.OAD.DB.Builders;
 
-namespace Console8
+namespace Console6
 {
     internal class Program
     {
