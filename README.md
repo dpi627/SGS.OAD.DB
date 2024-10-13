@@ -8,13 +8,12 @@ SGS Taiwan 內部套件，由 OAD 開發，透過呼叫內部網路服務 (Web A
   - .NET Framework `net47` `net471` `net472` `net48` `net481`
   - .NET `net6` `net8`
   - .NET Standard `2.0`
-- 最低限度依賴，僅 .NET Framework 需引用 `System.Net.Http`
-- 其餘功能皆使用目標框架原生 API 實現
+- 最低限度依賴，功能盡可能使用目標框架原生 API 實現
 - 語法以相容所有目標框架優先，避免使用新版本語法糖
 - 參考 Clean 與 Onion Architecture Pattern 實現關注點分離
 - 導入 Fluent Design Pattern 提升使用體驗
-- 支援非同步設計，提供非同步方法
-- 支援 DI 依賴注入，可自行實作服務注入
+- 支援非同步設計，提供非同步方法提升系統效率
+- 支援 Dependency Injection，可自行實作服務注入
 
 > 💡目標框架參考微軟官方開發框架 [.NET Framework](https://learn.microsoft.com/zh-tw/lifecycle/products/microsoft-net-framework) 與 [.NET / .NET Core](https://learn.microsoft.com/zh-tw/lifecycle/products/microsoft-net-and-net-core) 之生命週期制定 (不支援 .NET Core)
 
@@ -113,7 +112,7 @@ var builder = DbInfoBuilder.Init()
 
 ## Change Endpoint
 
-套件內建 `ApiUrlBuilder` 用以建構 API 網址，包含替換端點
+套件內建 `ApiUrlBuilder` 用以建構 API 網址，包含替換端點以及其他設定
 
 ```cs
 var builder = DbInfoBuilder.Init()
@@ -144,6 +143,39 @@ var builder = DbInfoBuilder
     .SetDatabase("SGSLims");
 ```
 
+## Asynchronous
+
+套件提供非同步方法，使用上可搭配 `.ConfigureAwait(false)`
+
+```cs
+var builder = DbInfoBuilder.Init()
+    .SetServer("TWDB000")
+    .SetDatabase("SGSLims");
+    
+// build database object asynchronously
+var db = await builder.BuildAsync();
+```
+
+### ConfigureAwait
+
+- 「同步上下文」即 Synchronization Context，是 .NET 用於管理執行緒上下文的機制
+- ASP.NET 具備同步上下文，ASP.NET Core 預設沒有 (更適合非同步)
+- 於 ASP.NET MVC 使用非同步方法結束時
+  - 如須返回原執行緒 (例如處理 `HttpContext`、更新 View)
+  ```cs
+  // 預設 ConfigureAwait(true) 直接使用即可
+  var db = await builder.BuildAsync();
+  // 返回原始上下文以使用 ViewBag
+  ViewBag.Data = db;
+  ```
+  - 如不須返回原執行緒
+  ```cs
+  // ConfigureAwait(fasle) 可避免切換上下文與部分 deadlock
+  var db = await builder.BuildAsync().ConfigureAwait(false);
+  // 不須返回原始上下文
+  OtherProcess(db);
+  ```
+
 ## File I/O Account
 
 這部分與資料庫連線字串無關，旨在利用此套件機制管理特殊I/O權限帳密(例如 efile_tw)。可避免帳號密碼留存於各系統組態檔，造成管理成本與資安風險。
@@ -161,7 +193,7 @@ var db = builder.Build();
 Console.Write($"UID: {db.UserId}, PWD: {db.Password}");
 ```
 
-# Architecture
+# Project Architecture
 
 ```js
 📁 SGS.OAD.DB
@@ -173,7 +205,7 @@ Console.Write($"UID: {db.UserId}, PWD: {db.Password}");
   📄 config.xml   //組態檔、參數檔
 ```
 
-# Future Improvement
+# TODO
 
 - 實作解密服務
 - 開發管理工具
