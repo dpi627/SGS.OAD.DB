@@ -11,15 +11,27 @@ namespace SGS.OAD.DB //namespace 要配合組態檔 config.xml
             return LoadConfig();
         });
 
+        /// <summary>
+        /// Get string value from config
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public static string GetValue(string key) => GetValue<string>(key);
 
+        /// <summary>
+        /// Get value from config, and convert to T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="KeyNotFoundException"></exception>
         public static T GetValue<T>(string key)
         {
             if (_config.Value.TryGetValue(key, out var value))
             {
                 try
                 {
-                    // 处理特殊类型，如枚举、GUID、TimeSpan
                     if (typeof(T).IsEnum)
                     {
                         return (T)Enum.Parse(typeof(T), value, ignoreCase: true);
@@ -60,10 +72,17 @@ namespace SGS.OAD.DB //namespace 要配合組態檔 config.xml
             }
         }
 
+        /// <summary>
+        /// Load config from embedded resource, convert to dictionary
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="FileNotFoundException"></exception>
         private static Dictionary<string, string> LoadConfig()
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = $"{typeof(ConfigHelper).Namespace}.config.xml"; // 确保命名空间和文件名匹配
+
+            // 注意 namespace 要配合組態檔 config.xml
+            var resourceName = $"{typeof(ConfigHelper).Namespace}.config.xml";
 
             using (Stream stream = assembly.GetManifestResourceStream(resourceName))
             {

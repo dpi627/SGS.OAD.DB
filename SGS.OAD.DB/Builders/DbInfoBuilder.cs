@@ -146,14 +146,14 @@ namespace SGS.OAD.DB.Builders
         /// 設定使用者資訊(帳密)
         /// </summary>
         /// <returns></returns>
-        private async Task SetUserInfoAsync()
+        private async Task SetUserInfoAsync(CancellationToken cancellationToken = default)
         {
             // 取得 API 端點
             var apiUrlInfo = _apiUrlBuilder.Build();
             var url = apiUrlInfo.Url;
             // 取得加密的使用者資料
             var userInfoService = new UserInfoService();
-            var encryptedUserInfo = await userInfoService.GetEncryptedUserInfoAsync(url).ConfigureAwait(false);
+            var encryptedUserInfo = await userInfoService.GetEncryptedUserInfoAsync(url, cancellationToken).ConfigureAwait(false);
             // 解密使用者資料
             var decryptService = new DecryptService();
             _userInfo = decryptService.DecryptUserInfo(encryptedUserInfo);
@@ -165,12 +165,12 @@ namespace SGS.OAD.DB.Builders
         {
             return BuildAsync().GetAwaiter().GetResult();
         }
-        public async Task<DbInfo> BuildAsync()
+        public async Task<DbInfo> BuildAsync(CancellationToken cancellationToken = default)
         {
-            // 驗證必要欄位
+            // 驗證必要欄位 server name & database name
             ValidateRequiredFields();
             // 取得使用者資訊
-            await SetUserInfoAsync().ConfigureAwait(false);
+            await SetUserInfoAsync(cancellationToken).ConfigureAwait(false);
 
             return new DbInfo()
             {

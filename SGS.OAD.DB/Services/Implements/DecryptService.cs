@@ -10,12 +10,10 @@ namespace SGS.OAD.DB.Services.Implements
         /// <summary>
         /// 解密使用者資料
         /// </summary>
-        /// <param name="encryptedUserInfo"></param>
-        /// <returns></returns>
+        /// <param name="encryptedUserInfo">加密的使用者資料</param>
+        /// <returns>解密的使用者資料</returns>
         public UserInfo DecryptUserInfo(UserInfo encryptedUserInfo)
         {
-            // 实现解密逻辑
-            // 例如，假设加密的 UserId 和 Password 是 Base64 编码的字符串
             var decryptedUserId = Decrypt(encryptedUserInfo.UserId);
             var decryptedPassword = Decrypt(encryptedUserInfo.Password);
 
@@ -31,7 +29,7 @@ namespace SGS.OAD.DB.Services.Implements
         /// </summary>
         /// <param name="encryptedText">加密字串</param>
         /// <returns>解密字串</returns>
-        private string Decrypt(string encryptedText)
+        private static string Decrypt(string encryptedText)
         {
             try
             {
@@ -52,13 +50,11 @@ namespace SGS.OAD.DB.Services.Implements
 
                 byte[] dataByteArray = Convert.FromBase64String(encryptedText);
 
-                // 创建 DES 对象
                 using (var des = DES.Create())
                 {
                     des.Key = keys;
                     des.IV = iv;
 
-                    // 创建解密器
                     ICryptoTransform decryptor = des.CreateDecryptor();
 
                     using (MemoryStream ms = new MemoryStream())
