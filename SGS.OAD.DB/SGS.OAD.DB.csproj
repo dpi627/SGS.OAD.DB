@@ -20,7 +20,7 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>SGS.OAD.DB</PackageId>
-    <Version>1.0.10</Version>
+    <Version>2024.10.1</Version>
     <Authors>Brian</Authors>
     <Company>SGS Taiwan Ltd.</Company>
     <Description>SGS Database Library</Description>
