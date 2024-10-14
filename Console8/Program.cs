@@ -1,4 +1,5 @@
 ﻿using SGS.OAD.DB.Builders;
+using System.Reflection;
 
 namespace Console8;
 
@@ -6,10 +7,14 @@ internal class Program
 {
     static async Task Main()
     {
+        string appName = Assembly.GetEntryAssembly()?.GetName().Name ?? "SYSOP";
+
         // create builder
         var builder = DbInfoBuilder.Init()
             .SetServer("TWDB009")
-            .SetDatabase("SGSLims_chem");
+            .SetDatabase("SGSLims_chem")
+            .SetAppName(appName); // suggest to add
+
         // build database object
         var db = builder.Build();
         Console.WriteLine(db.ConnectionString);

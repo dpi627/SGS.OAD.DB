@@ -3,11 +3,11 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Console472
+namespace Console47
 {
     internal class Program
     {
-        static async Task Main()
+        static async Task Main(string[] args)
         {
             // Get the name of the current application
             string appName = Assembly.GetEntryAssembly().GetName().Name;
