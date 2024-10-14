@@ -24,6 +24,9 @@ namespace SGS.OAD.DB.Builders
         private readonly ApiUrlBuilder _apiUrlBuilder;
         private UserInfo _userInfo;
 
+        // 暫存已經呼叫過的資料
+        private static IList<DbInfo> _dbList = new List<DbInfo>();
+
         private readonly IUserInfoService _userInfoService;
         private readonly IDecryptService _decryptService;
 
@@ -134,20 +137,21 @@ namespace SGS.OAD.DB.Builders
         /// <summary>
         /// 設定是否信任伺服器憑證
         /// </summary>
-        /// <param name="serverCertificate"></param>
+        /// <param name="trustServerCertificate"></param>
         /// <returns></returns>
-        public DbInfoBuilder SetServerCertificate(bool serverCertificate)
+        public DbInfoBuilder SetTrustServerCertificate(bool trustServerCertificate)
         {
-            _trustServerCertificate = serverCertificate;
+            _trustServerCertificate = trustServerCertificate;
             return this;
         }
-
+        int i = 1;
         /// <summary>
         /// 設定使用者資訊(帳密)
         /// </summary>
         /// <returns></returns>
         private async Task SetUserInfoAsync(CancellationToken cancellationToken = default)
         {
+            Console.WriteLine($"\n#{i++}: [{DateTime.Now:yyyy-MM-dd HH:mm:ss}] call web api");
             // 取得 API 端點
             var apiUrlInfo = _apiUrlBuilder.Build();
             var url = apiUrlInfo.Url;
@@ -167,12 +171,18 @@ namespace SGS.OAD.DB.Builders
         }
         public async Task<DbInfo> BuildAsync(CancellationToken cancellationToken = default)
         {
+            // Check if a matching DbInfo already exists in _dbList
+            if (_dbList.Any())
+                foreach (var dbInfo in _dbList)
+                    if (dbInfo.Server == _server && dbInfo.Database == _database)
+                        return dbInfo;
+
             // 驗證必要欄位 server name & database name
             ValidateRequiredFields();
             // 取得使用者資訊
             await SetUserInfoAsync(cancellationToken).ConfigureAwait(false);
 
-            return new DbInfo()
+            var db = new DbInfo()
             {
                 Server = _server,
                 Database = _database,
@@ -189,9 +199,24 @@ namespace SGS.OAD.DB.Builders
                     ("pwd", _pwd),
                     ("app", _appName),
                     ("timeout", _timeout),
-                    ("servercertificate", _trustServerCertificate)
+                    ("trustservercertificate", _trustServerCertificate)
                 )
             };
+
+            _dbList.Add(db);
+
+            return db;
+        }
+
+        public DbInfo Rebuild()
+        {
+            _dbList.Clear();
+            return BuildAsync().GetAwaiter().GetResult();
+        }
+        public async Task<DbInfo> RebuildAsync(CancellationToken cancellationToken = default)
+        {
+            _dbList.Clear();
+            return await BuildAsync(cancellationToken);
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using SGS.OAD.DB.Builders;
+using SGS.OAD.DB.Models;
 using System.Reflection;
 
 namespace Console6;
@@ -16,10 +17,24 @@ internal class Program
             .SetAppName(appName); // suggest to add
 
         // build database object
-        var db = builder.Build();
-        Console.WriteLine(db.ConnectionString);
+        DbInfo db;
+
+        for(int i= 0; i < 10; i++)
+        {
+            if (i == 5)
+                builder
+                    .SetServer("TWDB016")
+                    .SetDatabase("SGS_PMS")
+                    .SetTrustServerCertificate(false);
+
+            Task.Delay(500).Wait();
+
+            db = builder.Build();
+            Console.WriteLine(db.ConnectionString);
+        }
+
         // build database object asynchronously
-        db = await builder.BuildAsync();
-        Console.WriteLine(db.ConnectionString);
+        //db = await builder.BuildAsync();
+        //Console.WriteLine(db.ConnectionString);
     }
 }
