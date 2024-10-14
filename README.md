@@ -15,8 +15,6 @@
 ![](https://img.shields.io/badge/draw.io-555?logo=diagrams.net)
 ![](https://img.shields.io/badge/Markdown-555?logo=markdown)
 
-![](./SGS.OAD.DB/icon.png)
-
 # 🛡️SGS.OAD.DB
 
 SGS Taiwan 內部套件，由 OAD 開發，透過呼叫內部網路服務 (Web API) 取得加密過的資料庫使用者帳號與密碼。資料會於套件內部進行解密，組成可用之資料庫連線字串。旨在避免將帳號密碼儲存於專案內，從而提升資安層級與管理彈性。
@@ -61,6 +59,8 @@ SGS Taiwan 內部套件，由 OAD 開發，透過呼叫內部網路服務 (Web A
 
 - 加入自訂來源後，可透過 NuGet Package Manager 搜尋並安裝
 - 如果搜尋不到，請檢查 Package Source 是否為自訂來源或 All
+
+![](./assets/nuget-package-manager.png)
 
 # 🛠️How to Use
 
@@ -177,7 +177,7 @@ var db = await builder.BuildAsync();
 
 ### ⚖️ConfigureAwait
 
-- ASP.NET 具備「同步上下文」，ASP.NET Core 預設沒有 (更適合非同步)
+- ASP.NET 具備「同步上下文」，ASP.NET Core 預設沒有
 - 於 ASP.NET MVC 使用非同步方法結束時
   - 如須返回原執行緒 (例如處理 `HttpContext`、更新 View)
   ```cs
@@ -225,6 +225,12 @@ Console.Write($"UID: {db.UserId}, PWD: {db.Password}");
   📄 config.xml   //組態檔、參數檔
 ```
 
+- 參考 Clean Architecture 與 Onion Architecture 設計架構，實現關注點分離
+- Builder 採用 Fluent Design Pattern 提升操作體驗
+- 服務部分使用 Interface 解耦，支援自行實作介面注入 (Dependency Injection)
+- 系統參數或預設值使用 config.xml 管理 (避開 app.config 或 appsettings.json)
+- config.xml 設定為嵌入資源，部署之後不可見，避免(也無法)修改
+
 # 📋TODO
 
 - 實作解密服務
@@ -234,4 +240,6 @@ Console.Write($"UID: {db.UserId}, PWD: {db.Password}");
 - 重構後端 WebAPI
 - WebAPI 建立完整歷程記錄
 
-# 🔍References
+# ⚠️注意事項
+
+引用套件後，可考慮實作快取機制，避免過度呼叫 Web API 引發效能異常
