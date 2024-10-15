@@ -144,14 +144,14 @@ namespace SGS.OAD.DB.Builders
             _trustServerCertificate = trustServerCertificate;
             return this;
         }
-        int i = 1;
+
         /// <summary>
         /// 設定使用者資訊(帳密)
         /// </summary>
         /// <returns></returns>
         private async Task SetUserInfoAsync(CancellationToken cancellationToken = default)
         {
-            Console.WriteLine($"\n#{i++}: [{DateTime.Now:yyyy-MM-dd HH:mm:ss}] call web api");
+            Console.WriteLine($"[Call Web API] @ {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             // 取得 API 端點
             var apiUrlInfo = _apiUrlBuilder.Build();
             var url = apiUrlInfo.Url;
@@ -163,6 +163,11 @@ namespace SGS.OAD.DB.Builders
             _userInfo = decryptService.DecryptUserInfo(encryptedUserInfo);
             _uid = _userInfo.UserId;
             _pwd = _userInfo.Password;
+        }
+
+        public void ClearCache()
+        {
+            _dbList.Clear();
         }
 
         public DbInfo Build()
@@ -210,12 +215,12 @@ namespace SGS.OAD.DB.Builders
 
         public DbInfo Rebuild()
         {
-            _dbList.Clear();
+            ClearCache();
             return BuildAsync().GetAwaiter().GetResult();
         }
         public async Task<DbInfo> RebuildAsync(CancellationToken cancellationToken = default)
         {
-            _dbList.Clear();
+            ClearCache();
             return await BuildAsync(cancellationToken);
         }
 

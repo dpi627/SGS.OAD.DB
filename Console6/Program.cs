@@ -1,4 +1,5 @@
 ﻿using SGS.OAD.DB.Builders;
+using SGS.OAD.DB.Enums;
 using SGS.OAD.DB.Models;
 using System.Reflection;
 
@@ -10,31 +11,47 @@ internal class Program
     {
         string appName = Assembly.GetEntryAssembly()?.GetName().Name ?? "SYSOP";
 
-        // create builder
+        // 一開始使用資料庫連線
         var builder = DbInfoBuilder.Init()
             .SetServer("TWDB009")
             .SetDatabase("SGSLims_chem")
-            .SetAppName(appName); // suggest to add
+            .SetAppName(appName);
 
-        // build database object
         DbInfo db;
 
-        for(int i= 0; i < 10; i++)
+        for (int i = 1; i < 10; i++)
         {
-            if (i == 5)
-                builder
-                    .SetServer("TWDB016")
-                    .SetDatabase("SGS_PMS")
-                    .SetTrustServerCertificate(false);
+            Console.WriteLine($"\nLoop Test #{i}");
 
-            Task.Delay(500).Wait();
+            if (i == 4)
+            {
+                // 突然需要檔案存取，嘗試取得 db_filewriter 權限
+                builder = DbInfoBuilder.Init()
+                    .SetServer("TWDB021")
+                    .SetDatabase("LIMS20_TPE")
+                    .SetDatabaseRole(DatabaseRole.db_filewriter);
+            }
+            else if (i == 5)
+            {
+                // 存取原本資料庫
+                Console.WriteLine("(Back to Original Database)");
+                builder = DbInfoBuilder.Init()
+                    .SetServer("TWDB009")
+                    .SetDatabase("SGSLims_chem");
+            }
+            else if (i == 7)
+            {
+                // 清除快取 (會重新取得連線字串
+                builder.ClearCache();
+                Console.WriteLine("(Cache Cleared)");
+            }
 
             db = builder.Build();
-            Console.WriteLine(db.ConnectionString);
-        }
+            Console.WriteLine($"Sync : {db.ConnectionString[..100]}...");
+            //db = await builder.BuildAsync();
+            //Console.WriteLine($"Async: {db.ConnectionString[..100]}...");
 
-        // build database object asynchronously
-        //db = await builder.BuildAsync();
-        //Console.WriteLine(db.ConnectionString);
+            //Task.Delay(1000).Wait();
+        }
     }
 }
