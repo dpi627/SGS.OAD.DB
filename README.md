@@ -31,6 +31,7 @@ SGS Taiwan 內部套件，由 OAD 開發，透過呼叫內部網路服務 (Web A
 - 導入 Fluent Design Pattern 提升使用體驗
 - 支援非同步設計，提供非同步方法提升系統效率
 - 支援 Dependency Injection，可自行實作服務注入
+- 開發快取機制，避免後端 Web API 負載過重
 
 > 💡目標框架參考微軟官方開發框架 [.NET Framework](https://learn.microsoft.com/zh-tw/lifecycle/products/microsoft-net-framework) 與 [.NET / .NET Core](https://learn.microsoft.com/zh-tw/lifecycle/products/microsoft-net-and-net-core) 之生命週期制定
 
@@ -213,6 +214,31 @@ var db = builder.Build();
 Console.Write($"UID: {db.UserId}, PWD: {db.Password}");
 ```
 
+## 💾Data Chahe
+
+函式庫具備快取機制，避免連續呼叫，減輕後端 Web API 負載
+
+```cs
+// 000.UAT 首次創建，會呼叫 API
+var db1 = DbInfoBuilder.Init().SetServer("000").SetDatabase("UAT").Build();
+// 111.PRD 首次創建，會呼叫 API
+var db2 = DbInfoBuilder.Init().SetServer("111").SetDatabase("PRD").Build();
+// 000.UAT 重複創建，不會呼叫 API (已存在快取)
+var builder = DbInfoBuilder.Init().SetServer("000").SetDatabase("UAT");
+var db3 = builder.Build();
+
+builder.ClearCache(); // 清除快取
+
+// 000.UAT 重複創建，會呼叫 API (快取已清除)
+builder = builder.SetServer("000").SetDatabase("UAT");
+var db4 = builder.Build();
+// 000.UAT 重新創建，會呼叫 API (重建 = 清除快取 + 創建)
+builder = builder.SetServer("000").SetDatabase("UAT");
+var db4 = builder.Rebuild();
+```
+
+>💡上述範例也支援非同步 `BuildAsync()`，函式庫已使用 Thread Safety 類別，避免非同步操作可能引起之 race condition 問題
+
 # 🏗️Project Architecture
 
 ```js
@@ -235,11 +261,8 @@ Console.Write($"UID: {db.UserId}, PWD: {db.Password}");
 
 - 實作解密服務
 - 開發管理工具
-- DES 加密應改為 AES
+- 加密方法改為 AES
 - 改用 HTTPS 端點
 - 重構後端 WebAPI
-- WebAPI 建立完整歷程記錄
-
-# ⚠️注意事項
-
-引用套件後，可考慮實作快取機制，避免過度呼叫 Web API 引發效能異常
+- WebAPI 紀錄操作歷程
+- 使用混淆器
