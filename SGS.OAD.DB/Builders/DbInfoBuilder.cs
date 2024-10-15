@@ -3,6 +3,7 @@ using SGS.OAD.DB.Models;
 using SGS.OAD.DB.Services.Implements;
 using SGS.OAD.DB.Services.Interfaces;
 using SGS.OAD.DB.Utilities;
+using System.Collections.Concurrent;
 
 namespace SGS.OAD.DB.Builders
 {
@@ -25,7 +26,9 @@ namespace SGS.OAD.DB.Builders
         private UserInfo _userInfo;
 
         // 暫存已經呼叫過的資料
-        private static IList<DbInfo> _dbList = new List<DbInfo>();
+        //private static IList<DbInfo> _dbList = new List<DbInfo>();
+        // 使用執行緒安全的集合
+        private static ConcurrentBag<DbInfo> _dbList = new ConcurrentBag<DbInfo>();
 
         private readonly IUserInfoService _userInfoService;
         private readonly IDecryptService _decryptService;
@@ -167,7 +170,7 @@ namespace SGS.OAD.DB.Builders
 
         public void ClearCache()
         {
-            _dbList.Clear();
+            _dbList = new ConcurrentBag<DbInfo>();
         }
 
         public DbInfo Build()
@@ -176,11 +179,12 @@ namespace SGS.OAD.DB.Builders
         }
         public async Task<DbInfo> BuildAsync(CancellationToken cancellationToken = default)
         {
-            // Check if a matching DbInfo already exists in _dbList
-            if (_dbList.Any())
-                foreach (var dbInfo in _dbList)
-                    if (dbInfo.Server == _server && dbInfo.Database == _database)
-                        return dbInfo;
+            // Check if a matching DbInfo already exists
+            foreach (var dbInfo in _dbList)
+            {
+                if (dbInfo.Server == _server && dbInfo.Database == _database)
+                    return dbInfo;
+            }
 
             // 驗證必要欄位 server name & database name
             ValidateRequiredFields();

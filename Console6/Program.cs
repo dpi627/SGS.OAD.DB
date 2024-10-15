@@ -39,7 +39,7 @@ internal class Program
                     .SetServer("TWDB009")
                     .SetDatabase("SGSLims_chem");
             }
-            else if (i == 7)
+            else if (i == 6)
             {
                 // 清除快取 (會重新取得連線字串
                 builder.ClearCache();
@@ -48,10 +48,10 @@ internal class Program
 
             db = builder.Build();
             Console.WriteLine($"Sync : {db.ConnectionString[..100]}...");
-            //db = await builder.BuildAsync();
-            //Console.WriteLine($"Async: {db.ConnectionString[..100]}...");
+            db = await builder.BuildAsync();
+            Console.WriteLine($"Async: {db.ConnectionString[..100]}...");
 
-            //Task.Delay(1000).Wait();
+            Task.Delay(500).Wait();
         }
     }
 }
