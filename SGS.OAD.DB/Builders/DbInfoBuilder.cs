@@ -28,10 +28,18 @@ namespace SGS.OAD.DB.Builders
         // 暫存已經呼叫過的資料
         //private static IList<DbInfo> _dbList = new List<DbInfo>();
         // 使用執行緒安全的集合
-        private static ConcurrentBag<DbInfo> _dbList = new ConcurrentBag<DbInfo>();
+        //private static ConcurrentBag<DbInfo> _dbList = new ConcurrentBag<DbInfo>();
+        private static ConcurrentDictionary<string, CacheItem> _dbList = new ConcurrentDictionary<string, CacheItem>();
 
         private readonly IUserInfoService _userInfoService;
         private readonly IDecryptService _decryptService;
+
+        static DbInfoBuilder()
+        {
+            // 啟動背景清理服務，每 30 分鐘執行一次，清理過期 1 小時的快取
+            StartCacheCleanup(TimeSpan.FromMinutes(30), TimeSpan.FromHours(1));
+        }
+
 
         private DbInfoBuilder(
             IUserInfoService userInfoService = null,
@@ -170,7 +178,7 @@ namespace SGS.OAD.DB.Builders
 
         public void ClearCache()
         {
-            _dbList = new ConcurrentBag<DbInfo>();
+            _dbList.Clear();
         }
 
         public DbInfo Build()
@@ -180,10 +188,17 @@ namespace SGS.OAD.DB.Builders
         public async Task<DbInfo> BuildAsync(CancellationToken cancellationToken = default)
         {
             // Check if a matching DbInfo already exists
-            foreach (var dbInfo in _dbList)
+            //foreach (var dbInfo in _dbList)
+            //{
+            //    if (dbInfo.Server == _server && dbInfo.Database == _database)
+            //        return dbInfo;
+            //}
+            var cacheKey = $"{_server}_{_database}";
+
+            // 檢查是否有符合條件的快取項目，並且該項目未過期
+            if (_dbList.TryGetValue(cacheKey, out var cacheItem) && !cacheItem.IsExpired(TimeSpan.FromHours(1)))
             {
-                if (dbInfo.Server == _server && dbInfo.Database == _database)
-                    return dbInfo;
+                return cacheItem.DbInfo;
             }
 
             // 驗證必要欄位 server name & database name
@@ -212,7 +227,7 @@ namespace SGS.OAD.DB.Builders
                 )
             };
 
-            _dbList.Add(db);
+            _dbList.TryAdd(cacheKey, new CacheItem(db));
 
             return db;
         }
@@ -239,5 +254,34 @@ namespace SGS.OAD.DB.Builders
             if (string.IsNullOrEmpty(_database))
                 throw new ArgumentNullException(nameof(_database), "Empty Database");
         }
+
+        private static void StartCacheCleanup(TimeSpan interval, TimeSpan expirationTime)
+        {
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    try
+                    {
+                        var now = DateTime.UtcNow;
+                        foreach (var key in _dbList.Keys)
+                        {
+                            if (_dbList.TryGetValue(key, out var cacheItem) && cacheItem.IsExpired(expirationTime))
+                            {
+                                _dbList.TryRemove(key, out _);
+                                Console.WriteLine($"Cache item with key {key} removed at {now}");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Cache cleanup error: {ex.Message}");
+                    }
+
+                    await Task.Delay(interval);
+                }
+            });
+        }
+
     }
 }
