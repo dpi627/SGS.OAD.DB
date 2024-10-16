@@ -4,6 +4,8 @@ using SGS.OAD.DB.Services.Implements;
 using SGS.OAD.DB.Services.Interfaces;
 using SGS.OAD.DB.Utilities;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Threading;
 
 namespace SGS.OAD.DB.Builders
 {
@@ -12,6 +14,7 @@ namespace SGS.OAD.DB.Builders
     /// </summary>
     public class DbInfoBuilder
     {
+        //private static readonly object _cacheLock = new object();
         private string _server;
         private string _database;
         private string _uid;
@@ -30,6 +33,11 @@ namespace SGS.OAD.DB.Builders
         // 使用執行緒安全的集合
         //private static ConcurrentBag<DbInfo> _dbList = new ConcurrentBag<DbInfo>();
         private static ConcurrentDictionary<string, CacheItem> _dbList = new ConcurrentDictionary<string, CacheItem>();
+        private static readonly SemaphoreSlim _cacheLock = new SemaphoreSlim(1, 1);
+        private const int CacheExpirationMinutes = 5;
+        private const int CleanupIntervalMinutes = 2;
+        private static TimeSpan CacheExpiration = TimeSpan.FromSeconds(CacheExpirationMinutes);
+        private static TimeSpan CleanupInterval = TimeSpan.FromSeconds(CleanupIntervalMinutes);
 
         private readonly IUserInfoService _userInfoService;
         private readonly IDecryptService _decryptService;
@@ -37,7 +45,7 @@ namespace SGS.OAD.DB.Builders
         static DbInfoBuilder()
         {
             // 啟動背景清理服務，每 30 分鐘執行一次，清理過期 1 小時的快取
-            StartCacheCleanup(TimeSpan.FromMinutes(30), TimeSpan.FromHours(1));
+            StartCacheCleanup(CleanupInterval, CacheExpiration);
         }
 
 
@@ -163,6 +171,11 @@ namespace SGS.OAD.DB.Builders
         private async Task SetUserInfoAsync(CancellationToken cancellationToken = default)
         {
             Console.WriteLine($"[Call Web API] @ {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+            _userInfo = new UserInfo() { Password = "123456", UserId = "admin" };
+            _uid = _userInfo.UserId;
+            _pwd = _userInfo.Password;
+            return;
             // 取得 API 端點
             var apiUrlInfo = _apiUrlBuilder.Build();
             var url = apiUrlInfo.Url;
@@ -178,7 +191,22 @@ namespace SGS.OAD.DB.Builders
 
         public void ClearCache()
         {
-            _dbList.Clear();
+            ClearCacheAsync().GetAwaiter();
+        }
+
+        public async Task ClearCacheAsync()
+        {
+            await _cacheLock.WaitAsync();
+            try
+            {
+                _dbList.Clear();
+                // 避免清除後立刻重建快取時出現競爭條件，加入短暫延遲
+                await Task.Delay(100);
+            }
+            finally
+            {
+                _cacheLock.Release();
+            }
         }
 
         public DbInfo Build()
@@ -195,51 +223,64 @@ namespace SGS.OAD.DB.Builders
             //}
             var cacheKey = $"{_server}_{_database}";
 
-            // 檢查是否有符合條件的快取項目，並且該項目未過期
-            if (_dbList.TryGetValue(cacheKey, out var cacheItem) && !cacheItem.IsExpired(TimeSpan.FromHours(1)))
+            await _cacheLock.WaitAsync(cancellationToken);
+
+            try
             {
-                return cacheItem.DbInfo;
+                // 檢查是否有符合條件的快取項目，並且該項目未過期
+                if (_dbList.TryGetValue(cacheKey, out var cacheItem) &&
+                !cacheItem.IsExpired(CacheExpiration))
+                {
+                    Console.WriteLine($"[Cache Status] {DateTime.Now:yyyy-MM-dd HH:mm:ss} Using cache [{cacheKey}]");
+                    return cacheItem.DbInfo;
+                }
+
+                // 驗證必要欄位 server name & database name
+                ValidateRequiredFields();
+                // 取得使用者資訊
+                await SetUserInfoAsync(cancellationToken).ConfigureAwait(false);
+
+                var db = new DbInfo()
+                {
+                    Server = _server,
+                    Database = _database,
+                    UserId = _userInfo.UserId,
+                    Password = _userInfo.Password,
+                    ConnectionTimeout = _timeout,
+                    TrustServerCertificate = _trustServerCertificate,
+                    AppName = _appName,
+                    ConnectionString = Util.ReplaceVariables(
+                        _pattern,
+                        ("server", _server),
+                        ("database", _database),
+                        ("uid", _uid),
+                        ("pwd", _pwd),
+                        ("app", _appName),
+                        ("timeout", _timeout),
+                        ("trustservercertificate", _trustServerCertificate)
+                    )
+                };
+
+                Console.WriteLine($"[Cache Status] {DateTime.Now:yyyy-MM-dd HH:mm:ss} Adding cache [{cacheKey}]");
+
+                _dbList[cacheKey] = new CacheItem(db);
+
+                return db;
             }
-
-            // 驗證必要欄位 server name & database name
-            ValidateRequiredFields();
-            // 取得使用者資訊
-            await SetUserInfoAsync(cancellationToken).ConfigureAwait(false);
-
-            var db = new DbInfo()
+            finally
             {
-                Server = _server,
-                Database = _database,
-                UserId = _userInfo.UserId,
-                Password = _userInfo.Password,
-                ConnectionTimeout = _timeout,
-                TrustServerCertificate = _trustServerCertificate,
-                AppName = _appName,
-                ConnectionString = Util.ReplaceVariables(
-                    _pattern,
-                    ("server", _server),
-                    ("database", _database),
-                    ("uid", _uid),
-                    ("pwd", _pwd),
-                    ("app", _appName),
-                    ("timeout", _timeout),
-                    ("trustservercertificate", _trustServerCertificate)
-                )
-            };
-
-            _dbList.TryAdd(cacheKey, new CacheItem(db));
-
-            return db;
+                _cacheLock.Release();
+            }
         }
 
         public DbInfo Rebuild()
         {
-            ClearCache();
+            ClearCacheAsync().GetAwaiter();
             return BuildAsync().GetAwaiter().GetResult();
         }
         public async Task<DbInfo> RebuildAsync(CancellationToken cancellationToken = default)
         {
-            ClearCache();
+            await ClearCacheAsync().ConfigureAwait(false);
             return await BuildAsync(cancellationToken);
         }
 
@@ -261,24 +302,31 @@ namespace SGS.OAD.DB.Builders
             {
                 while (true)
                 {
+                    await Task.Delay(interval);
                     try
                     {
-                        var now = DateTime.UtcNow;
-                        foreach (var key in _dbList.Keys)
+                        await _cacheLock.WaitAsync();
+                        try
                         {
-                            if (_dbList.TryGetValue(key, out var cacheItem) && cacheItem.IsExpired(expirationTime))
+                            var now = DateTime.UtcNow;
+                            foreach (var key in _dbList.Keys)
                             {
-                                _dbList.TryRemove(key, out _);
-                                Console.WriteLine($"Cache item with key {key} removed at {now}");
+                                if (_dbList.TryGetValue(key, out var cacheItem) && cacheItem.IsExpired(expirationTime))
+                                {
+                                    _dbList.TryRemove(key, out _);
+                                    Console.WriteLine($"\n[Cache Status] {now} Remove Cache item [{key}]");
+                                }
                             }
+                        }
+                        finally
+                        {
+                            _cacheLock.Release();
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Cache cleanup error: {ex.Message}");
+                        Console.WriteLine($"\n[Cache Status] Cache cleanup error: {ex.Message}");
                     }
-
-                    await Task.Delay(interval);
                 }
             });
         }
