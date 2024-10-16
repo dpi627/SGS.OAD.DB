@@ -35,6 +35,7 @@
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <UserSecretsId>307dbcd0-ac28-4595-a70d-723f5ec9695f</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
