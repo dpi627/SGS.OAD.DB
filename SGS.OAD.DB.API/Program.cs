@@ -36,10 +36,10 @@ public class Program
             Log.Information("{appName} Starting...", appName);
 
             IConfigurationRoot? _config = new ConfigurationBuilder()
-            .SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .AddUserSecrets<Program>()
-            .Build();
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddUserSecrets<Program>()
+                .Build();
 
             var builder = WebApplication.CreateBuilder(args);
 
@@ -54,7 +54,12 @@ public class Program
             builder.Logging.ClearProviders();
             builder.Services.AddSerilog();
             builder.Services.AddMapster();
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    // 避免 json 自動轉為小駝峰式命名 (camelCase)
+                    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
