@@ -57,6 +57,7 @@ namespace SGS.OAD.DB
         /// <exception cref="HttpRequestException"></exception>
         public async Task<UserInfo> GetEncryptedUserInfoAsync(string url, CancellationToken cancellationToken = default)
         {
+            Console.WriteLine($"Fetching {url}");
             try
             {
                 using (var request = new HttpRequestMessage(HttpMethod.Get, url))

@@ -1,4 +1,4 @@
-﻿namespace SGS.OAD.DB.Enums
+﻿namespace SGS.OAD.DB
 {
     public enum ApiType
     {

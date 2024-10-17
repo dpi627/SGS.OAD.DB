@@ -5,6 +5,8 @@
     /// </summary>
     public class ApiUrlBuilder
     {
+        private ApiProtocal _protocal = ApiProtocal.HTTP;
+        private ApiType _type = ApiType.WCF;
         private string _endpoint;
         private string _server;
         private string _database;
@@ -13,7 +15,17 @@
         private readonly string _pattern;
 
         private ApiUrlBuilder() {
-            _endpoint = ConfigHelper.GetValue("API_ENDPOINT_WEBAPI_HTTPS");
+            if (Enum.TryParse(ConfigHelper.GetValue("API_PROTOCAL"), true, out ApiProtocal protocal))
+                _protocal = protocal;
+            else
+                Console.WriteLine($"Can't parse protocal, keep default setting: {_protocal}");
+
+            if (Enum.TryParse(ConfigHelper.GetValue("API_TYPE"), true, out ApiType type))
+                _type = type;
+            else
+                Console.WriteLine($"Can't parse API type, keep default setting: {_type}");
+
+            _endpoint = GetEndpoint(_protocal, _type);
             _pattern = ConfigHelper.GetValue("API_URL_PATTERN");
             _language = ProgramLanguage.Csharp;
             _role = DatabaseRole.db_datawriter;
@@ -76,6 +88,28 @@
             return this;
         }
 
+        /// <summary>
+        /// 設定 HTTP 或 HTTPS
+        /// </summary>
+        /// <param name="protocal"></param>
+        /// <returns></returns>
+        public ApiUrlBuilder SetProtocal(ApiProtocal protocal)
+        {
+            _protocal = protocal;
+            return this;
+        }
+
+        /// <summary>
+        /// 設定 API 類型為 WCF 或 WebAPI
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public ApiUrlBuilder SetType(ApiType type)
+        {
+            _type = type;
+            return this;
+        }
+
         public ApiUrlInfo Build()
         {
             return new ApiUrlInfo()
@@ -93,6 +127,33 @@
                     ("language", _language),
                     ("role", _role)
                 )
+            };
+        }
+
+        /// <summary>
+        /// 取得指定 API 端點
+        /// </summary>
+        /// <param name="protocal">HTTP or HTTPS</param>
+        /// <param name="type">WCF or WebAPI</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        private static string GetEndpoint(ApiProtocal protocal, ApiType type)
+        {
+            return type switch
+            {
+                ApiType.WCF => protocal switch
+                {
+                    ApiProtocal.HTTP => ConfigHelper.GetValue("API_ENDPOINT_WCF_HTTP"),
+                    ApiProtocal.HTTPS => ConfigHelper.GetValue("API_ENDPOINT_WCF_HTTPS"),
+                    _ => throw new NotImplementedException()
+                },
+                ApiType.WebAPI => protocal switch
+                {
+                    ApiProtocal.HTTP => ConfigHelper.GetValue("API_ENDPOINT_WEBAPI_HTTP"),
+                    ApiProtocal.HTTPS => ConfigHelper.GetValue("API_ENDPOINT_WEBAPI_HTTPS"),
+                    _ => throw new NotImplementedException()
+                },
+                _ => throw new NotImplementedException()
             };
         }
     }
