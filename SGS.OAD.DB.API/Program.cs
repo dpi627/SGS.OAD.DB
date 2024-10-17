@@ -7,6 +7,8 @@ using SGS.OAD.DB.API.Models;
 using Mapster;
 using SGS.OAD.DB.API.DTOs;
 using MapsterMapper;
+using Microsoft.OpenApi.Models;
+using SGS.OAD.DB.API.Filter;
 
 namespace SGS.OAD.DB.API;
 
@@ -61,7 +63,11 @@ public class Program
             builder.Services.AddMapster();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+                c.SchemaFilter<EnumSchemaFilter>();
+            });
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",

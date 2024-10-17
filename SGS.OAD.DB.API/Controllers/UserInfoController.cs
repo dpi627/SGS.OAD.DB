@@ -21,10 +21,10 @@ namespace SGS.OAD.DB.API.Controllers
                 logger.LogInformation("Get UserInfo with {@req}", req);
                 var result = context.SQLEncryptPasswords
                     .FirstOrDefault(p =>
-                        p.PLanguage == req.PLanguage &&
+                        p.PLanguage == req.PLanguage.ToString() &&
                         p.ServerName == req.ServerName &&
                         p.DatabaseName == req.DatabaseName &&
-                        p.DatabaseRole == req.DatabaseRole
+                        p.DatabaseRole == req.DatabaseRole.ToString()
                     );
 
                 if (result == null)
