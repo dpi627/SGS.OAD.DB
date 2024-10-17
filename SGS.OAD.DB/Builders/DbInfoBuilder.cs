@@ -15,10 +15,14 @@ namespace SGS.OAD.DB
         private int _timeout;
         private bool _trustServerCertificate;
         private string _pattern;
-        private ProgramLanguage _language;
-        private DatabaseRole _databeseRole;
-        private readonly ApiUrlBuilder _apiUrlBuilder;
+        private ProgramLanguage _language = ProgramLanguage.Csharp;
+        private DatabaseRole _databeseRole = DatabaseRole.db_datawriter;
         private UserInfo _userInfo;
+        private readonly ApiUrlBuilder _apiUrlBuilder;
+        private ApiProtocal _protocal;
+        private ApiType _type;
+        private ApiMethod _method;
+        private ApiAlgorithm _algorithm;
 
         // 使用執行緒安全的集合
         private static ConcurrentBag<DbInfo> _dbList = new ConcurrentBag<DbInfo>();
@@ -34,14 +38,17 @@ namespace SGS.OAD.DB
             // 注入外部服務，如果沒有使用內建服務
             _userInfoService = userInfoService ?? new UserInfoService();
             _decryptService = decryptService ?? new DecryptService();
-            // 初始化預設值
+            // 初始化預設值，讀取設定檔
             _apiUrlBuilder = ApiUrlBuilder.Empty();
-            _language = ProgramLanguage.Csharp;
-            _databeseRole = DatabaseRole.db_datawriter;
             _appName = ConfigHelper.GetValue("APP_NAME");
             _timeout = ConfigHelper.GetValue<int>("DB_TIMEOUT");
             _trustServerCertificate = ConfigHelper.GetValue<bool>("DB_TRUST_SERVER_CERTIFICATE");
             _pattern = ConfigHelper.GetValue("DB_CONNECTION_STRING_PATTERN");
+            _protocal = ConfigHelper.GetValue("API_PROTOCAL", _protocal);
+            _type = ConfigHelper.GetValue("API_TYPE", _type);
+            _method = ConfigHelper.GetValue("API_METHOD", _method);
+            _algorithm = ConfigHelper.GetValue("API_ALGORITHM", _algorithm);
+
         }
 
         public static DbInfoBuilder Init(
@@ -231,6 +238,53 @@ namespace SGS.OAD.DB
                 throw new ArgumentNullException(nameof(_server), "Empty Server Name");
             if (string.IsNullOrEmpty(_database))
                 throw new ArgumentNullException(nameof(_database), "Empty Database");
+        }
+
+        /// <summary>
+        /// 設定 API 通訊協定 HTTP or HTTPS
+        /// </summary>
+        /// <param name="protocal"></param>
+        /// <returns></returns>
+        public DbInfoBuilder SetProtocal(ApiProtocal protocal)
+        {
+            _protocal = protocal;
+            _apiUrlBuilder.SetProtocal(protocal);
+            return this;
+        }
+
+        /// <summary>
+        /// 設定 API 類型為 WCF 或 WebAPI
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public DbInfoBuilder SetType(ApiType type)
+        {
+            _type = type;
+            _apiUrlBuilder.SetType(type);
+            return this;
+        }
+
+        /// <summary>
+        /// 設定 API 方法，目前只有 GET，暫時可能用不到
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        public DbInfoBuilder SetMethod(ApiMethod method)
+        {
+            _method = method;
+            return this;
+        }
+
+        /// <summary>
+        /// 設定加密演算法，是 DES 或 AES
+        /// </summary>
+        /// <param name="algorithm"></param>
+        /// <returns></returns>
+        public DbInfoBuilder SetAlgorithm(ApiAlgorithm algorithm)
+        {
+            _algorithm = algorithm;
+            _apiUrlBuilder.SetAlgorithm(algorithm);
+            return this;
         }
     }
 }

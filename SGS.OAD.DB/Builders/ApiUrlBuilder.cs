@@ -5,36 +5,31 @@
     /// </summary>
     public class ApiUrlBuilder
     {
-        private ApiProtocal _protocal = ApiProtocal.HTTP;
-        private ApiType _type = ApiType.WCF;
+        private ApiProtocal _protocal = ApiProtocal.HTTPS;
+        private ApiType _type = ApiType.WebAPI;
+        private ApiAlgorithm _algorithm = ApiAlgorithm.DES;
         private string _endpoint;
         private string _server;
         private string _database;
-        private ProgramLanguage _language;
-        private DatabaseRole _role;
+        private ProgramLanguage _language = ProgramLanguage.Csharp;
+        private DatabaseRole _role = DatabaseRole.db_datawriter;
         private readonly string _pattern;
 
         private ApiUrlBuilder() {
-            if (Enum.TryParse(ConfigHelper.GetValue("API_PROTOCAL"), true, out ApiProtocal protocal))
-                _protocal = protocal;
-            else
-                Console.WriteLine($"Can't parse protocal, keep default setting: {_protocal}");
-
-            if (Enum.TryParse(ConfigHelper.GetValue("API_TYPE"), true, out ApiType type))
-                _type = type;
-            else
-                Console.WriteLine($"Can't parse API type, keep default setting: {_type}");
-
+            // 先設定 Http 或 Https 以及 WCF 或 WebAPI
+            _protocal = ConfigHelper.GetValue("API_PROTOCAL", _protocal);
+            _type = ConfigHelper.GetValue("API_TYPE", _type);
+            // 才能取得 API 端點
             _endpoint = GetEndpoint(_protocal, _type);
             _pattern = ConfigHelper.GetValue("API_URL_PATTERN");
-            _language = ProgramLanguage.Csharp;
-            _role = DatabaseRole.db_datawriter;
+            _algorithm = ConfigHelper.GetValue("API_ALGORITHM", _algorithm);
         }
 
         public static ApiUrlBuilder Empty() => new();
 
         /// <summary>
         /// 設定 API 端點
+        /// 預設透過 _protocal 和 _type 取得，但也開放自訂
         /// </summary>
         /// <param name="endpoint"></param>
         /// <returns></returns>
@@ -110,6 +105,17 @@
             return this;
         }
 
+        /// <summary>
+        /// 設定加密演算法
+        /// </summary>
+        /// <param name="algorithm"></param>
+        /// <returns></returns>
+        public ApiUrlBuilder SetAlgorithm(ApiAlgorithm algorithm)
+        {
+            _algorithm = algorithm;
+            return this;
+        }
+
         public ApiUrlInfo Build()
         {
             return new ApiUrlInfo()
@@ -125,7 +131,8 @@
                     ("server", _server),
                     ("database", _database),
                     ("language", _language),
-                    ("role", _role)
+                    ("role", _role),
+                    ("algorithm", _algorithm)
                 )
             };
         }

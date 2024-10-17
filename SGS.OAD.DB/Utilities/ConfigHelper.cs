@@ -73,6 +73,25 @@ namespace SGS.OAD.DB //namespace 要配合組態檔 config.xml
         }
 
         /// <summary>
+        /// Get value from config, and convert to T, if failed, return default value
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static T GetValue<T>(string key, T defaultValue) where T : struct
+        {
+            if (Enum.TryParse(GetValue(key), true, out T value))
+                return value;
+            else
+            {
+                Console.WriteLine($"Can't parse {key}, keep default setting: {defaultValue}");
+                return defaultValue;
+            }
+        }
+
+
+        /// <summary>
         /// Load config from embedded resource, convert to dictionary
         /// </summary>
         /// <returns></returns>
