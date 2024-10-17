@@ -5,10 +5,12 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using SGS.OAD.DB.API.Models;
 using Mapster;
-using SGS.OAD.DB.API.DTOs;
 using MapsterMapper;
 using Microsoft.OpenApi.Models;
 using SGS.OAD.DB.API.Filter;
+using SGS.OAD.DB.API.Mapper;
+using SGS.OAD.DB.API.Repositories.Interfaces;
+using SGS.OAD.DB.API.Repositories;
 
 namespace SGS.OAD.DB.API;
 
@@ -39,22 +41,13 @@ public class Program
             .AddUserSecrets<Program>()
             .Build();
 
-            //string? endpoint = _config["Endpoint"]!;
-            //string? apiKey = _config["OpenAI:ApiKey"]!;
-            //string? model = _config["OpenAI:Model"]!;
-
-
             var builder = WebApplication.CreateBuilder(args);
 
             #region mapster settings
-            var mapsterConfig = TypeAdapterConfig.GlobalSettings;
-
-            // 映射配置，之後如果改為AES可另外修改來源 ID/PW
-            mapsterConfig.NewConfig<SQLEncryptPassword, UserInfoEncryptResponse>()
-                  .Map(dest => dest.ID, src => src.ID)
-                  .Map(dest => dest.PW, src => src.PW);
-
-            builder.Services.AddSingleton(mapsterConfig);
+            // 設定 Mapster 映射特殊規則 (正常會自動映射同樣名稱屬性)
+            MapsterConfig.Configure();
+            // 註冊 Mapster
+            builder.Services.AddSingleton(TypeAdapterConfig.GlobalSettings);
             builder.Services.AddScoped<IMapper, ServiceMapper>();
             #endregion
 
@@ -78,16 +71,16 @@ public class Program
                                .AllowAnyMethod();
                     });
             });
-            //builder.Services.AddKernel()
-            //    .AddOpenAIChatCompletion(
-            //        modelId: model,
-            //        apiKey: apiKey
-            //        );
-            //builder.Services.AddScoped<IExcelFormulaService, ExcelFormulaService>();
 
             // 註冊 DbContext，使用您的連接字串
             builder.Services.AddDbContext<SGSLims_chemContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            // 註冊 Repository
+            builder.Services.AddScoped<ISqlEncryptPasswordRepository, SqlEncryptPasswordRepository>();
+
+            // 註冊 Service
+            builder.Services.AddScoped<Services.Interfaces.IUserInfoService, Services.UserInfoService>();
 
             var app = builder.Build();
 

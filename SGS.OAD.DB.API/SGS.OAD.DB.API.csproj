@@ -22,11 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Repositories\DTOs\" />
-    <Folder Include="Services\DTOs\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\SGS.OAD.DB\SGS.OAD.DB.csproj" />
   </ItemGroup>
 

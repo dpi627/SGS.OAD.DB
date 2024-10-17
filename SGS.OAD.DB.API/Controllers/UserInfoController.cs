@@ -1,14 +1,15 @@
 ﻿using MapsterMapper;
 using Microsoft.AspNetCore.Mvc;
 using SGS.OAD.DB.API.DTOs;
-using SGS.OAD.DB.API.Models;
+using SGS.OAD.DB.API.Services.DTOs;
 
 namespace SGS.OAD.DB.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     public class UserInfoController(
-        SGSLims_chemContext context,
+        //SGSLims_chemContext context,
+        Services.Interfaces.IUserInfoService userInfoService,
         IMapper mapper,
         ILogger<UserInfoController> logger
         ) : Controller
@@ -19,13 +20,8 @@ namespace SGS.OAD.DB.API.Controllers
             try
             {
                 logger.LogInformation("Get UserInfo with {@req}", req);
-                var result = context.SQLEncryptPasswords
-                    .FirstOrDefault(p =>
-                        p.PLanguage == req.PLanguage.ToString() &&
-                        p.ServerName == req.ServerName &&
-                        p.DatabaseName == req.DatabaseName &&
-                        p.DatabaseRole == req.DatabaseRole.ToString()
-                    );
+                var info = mapper.Map<UserInfoInfo>(req);
+                var result = userInfoService.Get(info);
 
                 if (result == null)
                 {
