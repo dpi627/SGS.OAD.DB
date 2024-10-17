@@ -48,8 +48,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SGS.OAD.DB, Version=24.10.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SGS.OAD.DB.24.10.0\lib\net472\SGS.OAD.DB.dll</HintPath>
+    <Reference Include="SGS.OAD.DB, Version=24.10.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SGS.OAD.DB.24.10.1\lib\net472\SGS.OAD.DB.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
