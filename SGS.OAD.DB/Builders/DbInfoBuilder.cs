@@ -1,11 +1,6 @@
-﻿using SGS.OAD.DB.Enums;
-using SGS.OAD.DB.Models;
-using SGS.OAD.DB.Services.Implements;
-using SGS.OAD.DB.Services.Interfaces;
-using SGS.OAD.DB.Utilities;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
-namespace SGS.OAD.DB.Builders
+namespace SGS.OAD.DB
 {
     /// <summary>
     /// 資料庫資訊建構器
@@ -25,8 +20,6 @@ namespace SGS.OAD.DB.Builders
         private readonly ApiUrlBuilder _apiUrlBuilder;
         private UserInfo _userInfo;
 
-        // 暫存已經呼叫過的資料
-        //private static IList<DbInfo> _dbList = new List<DbInfo>();
         // 使用執行緒安全的集合
         private static ConcurrentBag<DbInfo> _dbList = new ConcurrentBag<DbInfo>();
 

@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace SGS.OAD.DB.Utilities
+namespace SGS.OAD.DB
 {
     public class Util
     {

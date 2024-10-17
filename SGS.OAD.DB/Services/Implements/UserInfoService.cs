@@ -1,12 +1,10 @@
 ﻿using System.Net.Http;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using SGS.OAD.DB.Services.Interfaces;
-using SGS.OAD.DB.Models;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 
-namespace SGS.OAD.DB.Services.Implements
+namespace SGS.OAD.DB
 {
     public class UserInfoService : IUserInfoService
     {
@@ -21,6 +19,14 @@ namespace SGS.OAD.DB.Services.Implements
             _client = new HttpClient(handler);
         }
 
+        /// <summary>
+        /// 檢驗 HTTPS 憑證狀態，無論結果都給過，異常則顯示警告
+        /// </summary>
+        /// <param name="requestMessage"></param>
+        /// <param name="certificate"></param>
+        /// <param name="chain"></param>
+        /// <param name="sslPolicyErrors"></param>
+        /// <returns></returns>
         private static bool ValidateServerCertificate(HttpRequestMessage requestMessage, X509Certificate2 certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             if (sslPolicyErrors == SslPolicyErrors.None)
@@ -64,9 +70,6 @@ namespace SGS.OAD.DB.Services.Implements
 
                     response.EnsureSuccessStatusCode();
 
-                    //if (response.IsSuccessStatusCode)
-                    //{
-                    //var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     string json = await ReadResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                     var userInfoEncrypt = DeserializeJson<UserInfoJson>(json);
 
@@ -75,11 +78,6 @@ namespace SGS.OAD.DB.Services.Implements
                         UserId = userInfoEncrypt.ID,
                         Password = userInfoEncrypt.PW
                     };
-                    //}
-                    //else
-                    //{
-                    //    throw new HttpRequestException($"Can't fetch UserInfo from {url}, status code: {response.StatusCode}");
-                    //}
                 }
             }
             catch (HttpRequestException ex)

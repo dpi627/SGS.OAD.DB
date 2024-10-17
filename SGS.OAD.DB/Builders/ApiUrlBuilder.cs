@@ -1,8 +1,4 @@
-﻿using SGS.OAD.DB.Enums;
-using SGS.OAD.DB.Models;
-using SGS.OAD.DB.Utilities;
-
-namespace SGS.OAD.DB.Builders
+﻿namespace SGS.OAD.DB
 {
     /// <summary>
     /// API URL 建構器

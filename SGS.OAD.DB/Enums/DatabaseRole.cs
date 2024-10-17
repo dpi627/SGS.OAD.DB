@@ -1,4 +1,4 @@
-﻿namespace SGS.OAD.DB.Enums
+﻿namespace SGS.OAD.DB
 {
     /// <summary>
     /// 資料庫角色

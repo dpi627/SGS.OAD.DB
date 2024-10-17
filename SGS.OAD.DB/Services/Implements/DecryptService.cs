@@ -1,9 +1,7 @@
-﻿using SGS.OAD.DB.Models;
-using SGS.OAD.DB.Services.Interfaces;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace SGS.OAD.DB.Services.Implements
+namespace SGS.OAD.DB
 {
     public class DecryptService : IDecryptService
     {

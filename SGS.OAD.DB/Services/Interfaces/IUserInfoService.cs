@@ -1,6 +1,4 @@
-﻿using SGS.OAD.DB.Models;
-
-namespace SGS.OAD.DB.Services.Interfaces
+﻿namespace SGS.OAD.DB
 {
     /// <summary>
     /// 使用者資料服務

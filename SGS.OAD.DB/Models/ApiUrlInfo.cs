@@ -1,6 +1,4 @@
-﻿using SGS.OAD.DB.Enums;
-
-namespace SGS.OAD.DB.Models
+﻿namespace SGS.OAD.DB
 {
     /// <summary>
     /// API URL 相關資訊

@@ -1,6 +1,4 @@
-﻿using SGS.OAD.DB.Builders;
-using SGS.OAD.DB.Enums;
-using SGS.OAD.DB.Models;
+﻿using SGS.OAD.DB;
 using System.Reflection;
 
 namespace Console6;

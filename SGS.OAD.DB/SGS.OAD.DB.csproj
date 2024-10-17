@@ -19,7 +19,7 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>SGS.OAD.DB</PackageId>
-    <Version>24.10.0</Version>
+    <Version>24.10.1</Version>
     <Authors>Brian</Authors>
     <Company>SGS Taiwan Ltd.</Company>
     <Description>SGS 資料庫函式庫，處理加密資訊，獲取連線字串</Description>

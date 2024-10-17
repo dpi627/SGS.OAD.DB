@@ -1,4 +1,4 @@
-﻿namespace SGS.OAD.DB.Models
+﻿namespace SGS.OAD.DB
 {
     /// <summary>
     /// 資料庫資訊

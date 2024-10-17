@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace SGS.OAD.DB.Models
+namespace SGS.OAD.DB
 {
     /// <summary>
     /// 承接 API 回傳加密資料
