@@ -3,12 +3,33 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using SGS.OAD.DB.Services.Interfaces;
 using SGS.OAD.DB.Models;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace SGS.OAD.DB.Services.Implements
 {
     public class UserInfoService : IUserInfoService
     {
-        private static readonly HttpClient _client = new HttpClient();
+        private static readonly HttpClient _client;
+
+        static UserInfoService()
+        {
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = ValidateServerCertificate
+            };
+            _client = new HttpClient(handler);
+        }
+
+        private static bool ValidateServerCertificate(HttpRequestMessage requestMessage, X509Certificate2 certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            if (sslPolicyErrors == SslPolicyErrors.None)
+                return true;
+
+            Console.WriteLine($"SSL Certificate Error: {sslPolicyErrors}");
+            Console.WriteLine("Warning: Ignoring SSL certificate error. This may pose security risks.");
+            return true;
+        }
 
         /// <summary>
         /// 取得加密的使用者資料
@@ -30,17 +51,21 @@ namespace SGS.OAD.DB.Services.Implements
         /// <exception cref="HttpRequestException"></exception>
         public async Task<UserInfo> GetEncryptedUserInfoAsync(string url, CancellationToken cancellationToken = default)
         {
-            using (var request = new HttpRequestMessage(HttpMethod.Get, url))
+            try
             {
-                // setting request's header here
-                // request.Headers.Add("Custom-Header", "HeaderValue");
-
-                var response = await _client
-                    .SendAsync(request, cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (response.IsSuccessStatusCode)
+                using (var request = new HttpRequestMessage(HttpMethod.Get, url))
                 {
+                    // setting request's header here
+                    // request.Headers.Add("Custom-Header", "HeaderValue");
+
+                    var response = await _client
+                        .SendAsync(request, cancellationToken)
+                        .ConfigureAwait(false);
+
+                    response.EnsureSuccessStatusCode();
+
+                    //if (response.IsSuccessStatusCode)
+                    //{
                     //var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     string json = await ReadResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                     var userInfoEncrypt = DeserializeJson<UserInfoJson>(json);
@@ -50,11 +75,16 @@ namespace SGS.OAD.DB.Services.Implements
                         UserId = userInfoEncrypt.ID,
                         Password = userInfoEncrypt.PW
                     };
+                    //}
+                    //else
+                    //{
+                    //    throw new HttpRequestException($"Can't fetch UserInfo from {url}, status code: {response.StatusCode}");
+                    //}
                 }
-                else
-                {
-                    throw new HttpRequestException($"Can't fetch UserInfo from {url}, status code: {response.StatusCode}");
-                }
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new HttpRequestException($"Can't fetch UserInfo from {url}. Error: {ex.Message}", ex);
             }
         }
 

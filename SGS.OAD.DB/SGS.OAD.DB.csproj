@@ -8,8 +8,7 @@
 		  net48;
 		  net481;
 		  net6.0;
-		  net8.0;
-      netstandard2.0;
+		  net8.0
 	  </TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
@@ -20,7 +19,7 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>SGS.OAD.DB</PackageId>
-    <Version>2024.10.2</Version>
+    <Version>24.10.0</Version>
     <Authors>Brian</Authors>
     <Company>SGS Taiwan Ltd.</Company>
     <Description>SGS 資料庫函式庫，處理加密資訊，獲取連線字串</Description>
@@ -48,7 +47,7 @@
 
   <!-- .NET Framework / Standard 需加入 System.Net.Http -->
   <ItemGroup>
-    <PackageReference Include="System.Net.Http" Version="4.3.4" Condition="&#xD;&#xA;	    '$(TargetFramework)' == 'net47' OR&#xD;&#xA;	    '$(TargetFramework)' == 'net471' OR&#xD;&#xA;	    '$(TargetFramework)' == 'net472' OR&#xD;&#xA;	    '$(TargetFramework)' == 'net48' OR&#xD;&#xA;	    '$(TargetFramework)' == 'net481' OR&#xD;&#xA;      '$(TargetFramework)' == 'netstandard2.0'&#xD;&#xA;	  " />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" Condition="'$(TargetFramework)' == 'net47' OR '$(TargetFramework)' == 'net471' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net48' OR '$(TargetFramework)' == 'net481'" />
     <!-- .NET (Core) 不需額外引用 -->
   </ItemGroup>
 

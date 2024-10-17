@@ -17,7 +17,7 @@ namespace SGS.OAD.DB.Builders
         private readonly string _pattern;
 
         private ApiUrlBuilder() {
-            _endpoint = ConfigHelper.GetValue("API_ENDPOINT");
+            _endpoint = ConfigHelper.GetValue("API_ENDPOINT_WEBAPI_HTTPS");
             _pattern = ConfigHelper.GetValue("API_URL_PATTERN");
             _language = ProgramLanguage.Csharp;
             _role = DatabaseRole.db_datawriter;
