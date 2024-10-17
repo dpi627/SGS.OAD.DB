@@ -1,11 +1,29 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <AppSettings>
+  <!-- algorithm settings -->
+  <AES_KEY></AES_KEY>
+  <AES_VECTOR>2299327922993279</AES_VECTOR>
   <DES_KEY>23928467</DES_KEY>
   <DES_VECTOR>22993279</DES_VECTOR>
-  <API_ENDPOINT><![CDATA[http://twws006/Decrypt_Server/ServiceDecryptPW.svc/Get_Decrypt4]]></API_ENDPOINT>
+  <!-- /algorithm settings -->
+  <!-- api settings -->
+  <API_ENDPOINT>WCF</API_ENDPOINT>
+  <API_PROTOCAL>http</API_PROTOCAL>
+  <API_ENDPOINT_WCF_HTTP><![CDATA[http://twws006/Decrypt_Server/ServiceDecryptPW.svc/Get_Decrypt4]]></API_ENDPOINT_WCF_HTTP>
+  <API_ENDPOINT_WCF_HTTPS><![CDATA[https://twws006.sgs.net/DecryptService/ServiceDecryptPW.svc/Get_Decrypt4]]></API_ENDPOINT_WCF_HTTPS>
+  <API_ENDPOINT_WEBAPI_HTTP><![CDATA[http://twtpeoad002/db/UserInfo]]></API_ENDPOINT_WEBAPI_HTTP>
+  <API_ENDPOINT_WEBAPI_HTTPS><![CDATA[https://twtpeoad002/db/UserInfo]]></API_ENDPOINT_WEBAPI_HTTPS>
   <API_URL_PATTERN><![CDATA[{endpoint}?servername={server}&databasename={database}&planguage={language}&databaserole={role}]]></API_URL_PATTERN>
-  <APP_NAME>SYSOP</APP_NAME>
+  <!-- /api settings -->
+  <!-- db settings -->
+  <DB_CONNECTION_STRING_PATTERN><![CDATA[Data Source={server};Initial Catalog={database};User ID={uid};Password={pwd};Application Name={app};Connect Timeout={timeout};TrustServerCertificate={trustservercertificate};]]></DB_CONNECTION_STRING_PATTERN>
   <DB_TIMEOUT>30</DB_TIMEOUT>
   <DB_TRUST_SERVER_CERTIFICATE>true</DB_TRUST_SERVER_CERTIFICATE>
-  <DB_CONNECTION_STRING_PATTERN><![CDATA[Data Source={server};Initial Catalog={database};User ID={uid};Password={pwd};Application Name={app};Connect Timeout={timeout};TrustServerCertificate={trustservercertificate};]]></DB_CONNECTION_STRING_PATTERN>
+  <!-- /db settings -->
+  <!-- other setings -->
+  <APP_NAME>SYSOP</APP_NAME>
+  <ENABLE_LOG>true</ENABLE_LOG>
+  <ENABLE_CACHE>true</ENABLE_CACHE>
+  <ENABLE_CACHE_AUTO_CLEAN>true</ENABLE_CACHE_AUTO_CLEAN>
+  <!-- /other setings -->
 </AppSettings>
