@@ -63,7 +63,22 @@ public class Program
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+                // 取得 XML 文件的路徑
+                var xmlFile = $"{appName}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+                // 加入 XML 註解
+                if (File.Exists(xmlPath))
+                {
+                    c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
+                }
+
+                c.SwaggerDoc("v1", new OpenApiInfo 
+                { 
+                    Title = "OAD API", 
+                    Version = "v1",
+                    Description = "API 說明文件"
+                });
                 c.SchemaFilter<EnumSchemaFilter>();
             });
             builder.Services.AddCors(options =>
@@ -88,6 +103,17 @@ public class Program
             builder.Services.AddScoped<Services.Interfaces.IUserInfoService, Services.UserInfoService>();
 
             var app = builder.Build();
+
+            // 配置 Swagger 中介軟體
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                    c.RoutePrefix = string.Empty; // 設定 Swagger UI 在應用程式根目錄
+                });
+            }
 
             app.UseSerilogRequestLogging();
             app.UseCors("AllowAll");
