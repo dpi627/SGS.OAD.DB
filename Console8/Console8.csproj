@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SGS.OAD.DB" Version="24.10.1" />
+    <PackageReference Include="SGS.OAD.DB" Version="24.10.2" />
   </ItemGroup>
 
 </Project>
