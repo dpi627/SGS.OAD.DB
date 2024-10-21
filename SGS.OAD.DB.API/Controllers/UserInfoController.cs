@@ -19,7 +19,7 @@ namespace SGS.OAD.DB.API.Controllers
         {
             try
             {
-                logger.LogInformation("Get UserInfo with {@req}", req);
+                logger.LogInformation("Request UserInfo with {@req}", req);
                 var info = mapper.Map<UserInfoInfo>(req);
                 var result = userInfoService.Get(info);
 
@@ -30,7 +30,7 @@ namespace SGS.OAD.DB.API.Controllers
                 }
 
                 var res = mapper.Map<UserInfoEncryptResponse>(result);
-                logger.LogInformation("Get UserInfo with {@res}", res);
+                logger.LogInformation("Response UserInfo with {@res}", res);
                 return Ok(res);
             }
             catch (Exception ex)

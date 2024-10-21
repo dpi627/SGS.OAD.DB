@@ -27,7 +27,7 @@ namespace SGS.OAD.DB.API.Services
             // 映射規則請參考 SGS.OAD.DB.API/MapsterConfig.cs
             var result = mapper.Map<UserInfoResultModel>((data, info));
 
-            logger.LogInformation("Get UserInfo with {@result}", result);
+            logger.LogInformation("Return UserInfoResultModel with {@result}", result);
             return result;
         }
     }

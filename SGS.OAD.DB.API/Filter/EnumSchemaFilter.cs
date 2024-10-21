@@ -18,7 +18,7 @@ namespace SGS.OAD.DB.API.Filter
                 schema.Type = "string";
                 schema.Format = null;
 
-                // 添加枚舉描述
+                // 添加列舉描述
                 schema.Description = string.Join("<br>", Enum.GetNames(context.Type)
                     .Select(name => $"{name}: {GetEnumDescription(context.Type, name)}"));
             }

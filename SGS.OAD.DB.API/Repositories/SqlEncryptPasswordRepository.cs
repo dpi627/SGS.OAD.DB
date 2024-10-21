@@ -13,7 +13,7 @@ namespace SGS.OAD.DB.API.Repositories
     {
         public SqlEncryptPasswordDataModel? Query(SqlEncryptPasswordCondition condition)
         {
-            logger.LogInformation("Get SqlEncryptPassword with {@condition}", condition);
+            logger.LogInformation("Select SqlEncryptPassword with {@condition}", condition);
 
             var data = context.SQLEncryptPasswords
                 .Where(p =>
@@ -28,7 +28,7 @@ namespace SGS.OAD.DB.API.Repositories
 
             var result = mapper.Map<SqlEncryptPasswordDataModel>(data);
 
-            logger.LogInformation("Get SqlEncryptPassword with {@result}", result);
+            logger.LogInformation("Return SqlEncryptPasswordDataModel with {@result}", result);
 
             return result;
         }
