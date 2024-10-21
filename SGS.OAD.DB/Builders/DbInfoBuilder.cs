@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using SGS.OAD.DB.Services.Implements;
+using System.Collections.Concurrent;
 
 namespace SGS.OAD.DB
 {
@@ -29,12 +30,24 @@ namespace SGS.OAD.DB
 
         private readonly IUserInfoService _userInfoService;
         private readonly IDecryptService _decryptService;
+        private ILogger _logger;
 
         private DbInfoBuilder(
             IUserInfoService userInfoService = null,
-            IDecryptService decryptService = null
+            IDecryptService decryptService = null,
+            ILogger logger = null
             )
         {
+            if (logger == null)
+            {
+                LoggerBuilder(ConfigHelper.GetValue<bool>("ENABLE_LOG"));
+            }
+            else
+            {
+                _logger = logger;
+            }
+            _logger.LogInformation("DbInfoBuilder Initialized");
+
             // 注入外部服務，如果沒有使用內建服務
             _userInfoService = userInfoService ?? new UserInfoService();
             _decryptService = decryptService ?? new DecryptService();
@@ -53,8 +66,9 @@ namespace SGS.OAD.DB
 
         public static DbInfoBuilder Init(
             IUserInfoService userInfoService = null,
-            IDecryptService decryptService = null
-            ) => new(userInfoService, decryptService);
+            IDecryptService decryptService = null,
+            ILogger logger = null
+            ) => new(userInfoService, decryptService, logger);
 
         /// <summary>
         /// 設定伺服器名稱
@@ -154,13 +168,18 @@ namespace SGS.OAD.DB
         /// <returns></returns>
         private async Task SetUserInfoAsync(CancellationToken cancellationToken = default)
         {
-            Console.WriteLine($"[Call Web API] @ {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            //Console.WriteLine($"[Call Web API] @ {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            _logger.LogInformation("Fetch Web API");
+            //_userInfo = new UserInfo();
+            //return;
             // 取得 API 端點
             var apiUrlInfo = _apiUrlBuilder.Build();
             var url = apiUrlInfo.Url;
             // 取得加密的使用者資料
-            var userInfoService = new UserInfoService();
-            var encryptedUserInfo = await userInfoService.GetEncryptedUserInfoAsync(url, cancellationToken).ConfigureAwait(false);
+            var userInfoService = new UserInfoService(_logger);
+            var encryptedUserInfo = await userInfoService
+                .GetEncryptedUserInfoAsync(url, cancellationToken)
+                .ConfigureAwait(false);
             // 解密使用者資料
             var decryptService = new DecryptService();
             _userInfo = decryptService.DecryptUserInfo(encryptedUserInfo);
@@ -170,6 +189,7 @@ namespace SGS.OAD.DB
 
         public void ClearCache()
         {
+            _logger.LogInformation("Clear Cache");
             _dbList = new ConcurrentBag<DbInfo>();
         }
 
@@ -183,7 +203,10 @@ namespace SGS.OAD.DB
             foreach (var dbInfo in _dbList)
             {
                 if (dbInfo.Server == _server && dbInfo.Database == _database)
+                {
+                    _logger.LogInformation("DbInfo Found in Cache");
                     return dbInfo;
+                }
             }
 
             // 驗證必要欄位 server name & database name
@@ -213,7 +236,7 @@ namespace SGS.OAD.DB
             };
 
             _dbList.Add(db);
-
+            _logger.LogInformation("DbInfo Created");
             return db;
         }
 
@@ -235,9 +258,24 @@ namespace SGS.OAD.DB
         private void ValidateRequiredFields()
         {
             if (string.IsNullOrEmpty(_server))
+            {
+                _logger.LogError("Empty Server Name");
                 throw new ArgumentNullException(nameof(_server), "Empty Server Name");
+            }
             if (string.IsNullOrEmpty(_database))
+            {
+                _logger.LogError("Empty Database");
                 throw new ArgumentNullException(nameof(_database), "Empty Database");
+            }
+
+            if (_protocal == ApiProtocal.HTTP)
+            {
+                _logger.LogWarning("Recommend to use HTTPS");
+            }
+            if (_type == ApiType.WCF)
+            {
+                _logger.LogWarning("Recommend to use WebAPI");
+            }
         }
 
         /// <summary>
@@ -285,6 +323,19 @@ namespace SGS.OAD.DB
             _algorithm = algorithm;
             _apiUrlBuilder.SetAlgorithm(algorithm);
             return this;
+        }
+
+        public DbInfoBuilder EnableLog()
+        {
+            LoggerBuilder(true);
+            return this;
+        }
+
+        private void LoggerBuilder(bool isEnableLog)
+        {
+            var fileLogger = new FileLogger(ConfigHelper.GetValue("LOG_PATH"));
+            var consoleLogger = new ConsoleLogger();
+            _logger = new LoggerFactory(isEnableLog, fileLogger, consoleLogger);
         }
     }
 }

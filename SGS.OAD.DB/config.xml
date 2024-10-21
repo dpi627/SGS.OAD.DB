@@ -30,7 +30,8 @@
   <!-- /db settings -->
   <!-- other setings -->
   <APP_NAME>SYSOP</APP_NAME>
-  <ENABLE_LOG>true</ENABLE_LOG>
+  <LOG_PATH>logs</LOG_PATH>
+  <ENABLE_LOG>false</ENABLE_LOG>
   <ENABLE_CACHE>true</ENABLE_CACHE>
   <ENABLE_CACHE_AUTO_CLEAN>true</ENABLE_CACHE_AUTO_CLEAN>
   <!-- /other setings -->

@@ -9,6 +9,12 @@ namespace SGS.OAD.DB
     public class UserInfoService : IUserInfoService
     {
         private static readonly HttpClient _client;
+        private readonly ILogger _logger;
+
+        public UserInfoService(ILogger logger = null)
+        {
+            _logger = logger ?? new LoggerFactory(loggers: new ConsoleLogger());
+        }
 
         static UserInfoService()
         {
@@ -57,7 +63,8 @@ namespace SGS.OAD.DB
         /// <exception cref="HttpRequestException"></exception>
         public async Task<UserInfo> GetEncryptedUserInfoAsync(string url, CancellationToken cancellationToken = default)
         {
-            Console.WriteLine($"Fetching {url}");
+            //Console.WriteLine($"Fetching {url}");
+            _logger.LogInformation($"Fetching {url}");
             try
             {
                 using (var request = new HttpRequestMessage(HttpMethod.Get, url))
@@ -83,7 +90,9 @@ namespace SGS.OAD.DB
             }
             catch (HttpRequestException ex)
             {
-                throw new HttpRequestException($"Can't fetch UserInfo from {url}. Error: {ex.Message}", ex);
+                var msg = $"Can't fetch UserInfo from {url}. Error: {ex.Message}";
+                _logger.LogError(msg, ex);
+                throw new HttpRequestException(msg, ex);
             }
         }
 
