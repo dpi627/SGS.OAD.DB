@@ -11,13 +11,13 @@ internal class Program
 
         // 一開始使用資料庫連線
         var builder = DbInfoBuilder.Init()
-            .SetServer("TWDB009")
+            .SetServer("TWDB016")
             .SetDatabase("SGSLims_chem")
             .SetAppName(appName);
 
         DbInfo db;
 
-        for (int i = 1; i < 5; i++)
+        for (int i = 1; i < 10; i++)
         {
             Console.WriteLine($"\nLoop Test #{i}");
 
@@ -45,7 +45,9 @@ internal class Program
             //}
 
             db = builder.Build();
-            Console.WriteLine($"Sync : {db.ConnectionString[..100]}...");
+            Console.WriteLine($"Sync : {db.ConnectionString}");
+
+            //Console.WriteLine($"Sync : {db.ConnectionString[..100]}...");
             //db = await builder.BuildAsync();
             //Console.WriteLine($"Async: {db.ConnectionString[..100]}...");
 
