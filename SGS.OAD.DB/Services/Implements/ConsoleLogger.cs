@@ -20,7 +20,7 @@
                 LogToConsole(exception.ToString(), LogLevel.ERR);
         }
 
-        private void LogToConsole(string message, LogLevel logLevel)
+        private static void LogToConsole(string message, LogLevel logLevel)
         {
             Console.WriteLine($"[{logLevel}] {DateTime.Now:yyyy/MM/dd HH:mm:ss}: {message}");
         }

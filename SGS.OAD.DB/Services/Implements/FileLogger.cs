@@ -27,7 +27,7 @@
         public void LogError(string message, Exception exception = null)
         {
             LogToFile(message, LogLevel.ERR);
-            
+
             if (exception != null)
                 LogToFile(exception.ToString(), LogLevel.ERR);
         }
@@ -49,8 +49,8 @@
         private string GetLogFilePath()
         {
             // 以 yyyy-MM-dd 的格式產生檔名，確保每天都有一個新檔案
-            string date = DateTime.Now.ToString("yyyy-MM-dd");
-            return Path.Combine(_logDirectory, $"log_{date}.txt");
+            string date = DateTime.Now.ToString("yyyyMMdd");
+            return Path.Combine(_logDirectory, $"db_{date}.log");
         }
     }
 }

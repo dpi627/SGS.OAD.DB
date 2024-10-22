@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Runtime.Serialization.Json;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SGS.OAD.DB
 {
@@ -74,6 +76,37 @@ namespace SGS.OAD.DB
             });
 
             return result;
+        }
+
+        /// <summary>
+        /// Deserialize JSON string to object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static T DeserializeJson<T>(string json)
+        {
+            var serializer = new DataContractJsonSerializer(typeof(T));
+            using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(json)))
+            {
+                return (T)serializer.ReadObject(ms);
+            }
+        }
+
+        /// <summary>
+        /// Serialize object to JSON string
+        /// </summary>
+        /// <typeparam name="T">物件的類型</typeparam>
+        /// <param name="obj">要序列化的物件</param>
+        /// <returns>JSON 字串</returns>
+        public static string SerializeJson<T>(T obj)
+        {
+            var serializer = new DataContractJsonSerializer(typeof(T));
+            using (var ms = new MemoryStream())
+            {
+                serializer.WriteObject(ms, obj);
+                return Encoding.UTF8.GetString(ms.ToArray());
+            }
         }
     }
 }

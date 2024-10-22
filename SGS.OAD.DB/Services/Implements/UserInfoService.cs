@@ -64,7 +64,7 @@ namespace SGS.OAD.DB
         public async Task<UserInfo> GetEncryptedUserInfoAsync(string url, CancellationToken cancellationToken = default)
         {
             //Console.WriteLine($"Fetching {url}");
-            _logger.LogInformation($"Fetching {url}");
+            _logger.LogInformation($"Fetching API {url}");
             try
             {
                 using (var request = new HttpRequestMessage(HttpMethod.Get, url))
@@ -79,7 +79,7 @@ namespace SGS.OAD.DB
                     response.EnsureSuccessStatusCode();
 
                     string json = await ReadResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
-                    var userInfoEncrypt = DeserializeJson<UserInfoJson>(json);
+                    var userInfoEncrypt = Util.DeserializeJson<UserInfoJson>(json);
 
                     return new UserInfo
                     {
@@ -118,21 +118,6 @@ namespace SGS.OAD.DB
                     return await readTask.ConfigureAwait(false);
                 }
             #endif
-        }
-
-        /// <summary>
-        /// Deserialize JSON string to object
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="json"></param>
-        /// <returns></returns>
-        private static T DeserializeJson<T>(string json)
-        {
-            var serializer = new DataContractJsonSerializer(typeof(T));
-            using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(json)))
-            {
-                return (T)serializer.ReadObject(ms);
-            }
         }
     }
 }

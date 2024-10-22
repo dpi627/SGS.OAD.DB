@@ -24,6 +24,7 @@ namespace SGS.OAD.DB
         private ApiType _type;
         private ApiMethod _method;
         private ApiAlgorithm _algorithm;
+        private readonly bool _isEnableLog;
 
         // 使用執行緒安全的集合
         private static ConcurrentBag<DbInfo> _dbList = new ConcurrentBag<DbInfo>();
@@ -38,19 +39,11 @@ namespace SGS.OAD.DB
             ILogger logger = null
             )
         {
-            if (logger == null)
-            {
-                LoggerBuilder(ConfigHelper.GetValue<bool>("ENABLE_LOG"));
-            }
-            else
-            {
-                _logger = logger;
-            }
-            _logger.LogInformation("DbInfoBuilder Initialized");
-
             // 注入外部服務，如果沒有使用內建服務
             _userInfoService = userInfoService ?? new UserInfoService();
             _decryptService = decryptService ?? new DecryptService();
+            _isEnableLog = ConfigHelper.GetValue<bool>("ENABLE_LOG");
+            _logger = logger ?? (_isEnableLog ? LoggerBuilder() : new NullLogger());
             // 初始化預設值，讀取設定檔
             _apiUrlBuilder = ApiUrlBuilder.Empty();
             _appName = ConfigHelper.GetValue("APP_NAME");
@@ -61,7 +54,6 @@ namespace SGS.OAD.DB
             _type = ConfigHelper.GetValue("API_TYPE", _type);
             _method = ConfigHelper.GetValue("API_METHOD", _method);
             _algorithm = ConfigHelper.GetValue("API_ALGORITHM", _algorithm);
-
         }
 
         public static DbInfoBuilder Init(
@@ -168,10 +160,6 @@ namespace SGS.OAD.DB
         /// <returns></returns>
         private async Task SetUserInfoAsync(CancellationToken cancellationToken = default)
         {
-            //Console.WriteLine($"[Call Web API] @ {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-            _logger.LogInformation("Fetch Web API");
-            //_userInfo = new UserInfo();
-            //return;
             // 取得 API 端點
             var apiUrlInfo = _apiUrlBuilder.Build();
             var url = apiUrlInfo.Url;
@@ -204,7 +192,7 @@ namespace SGS.OAD.DB
             {
                 if (dbInfo.Server == _server && dbInfo.Database == _database)
                 {
-                    _logger.LogInformation("DbInfo Found in Cache");
+                    _logger.LogInformation($"DbInfo Found in Cache {Util.SerializeJson(dbInfo)}");
                     return dbInfo;
                 }
             }
@@ -236,7 +224,7 @@ namespace SGS.OAD.DB
             };
 
             _dbList.Add(db);
-            _logger.LogInformation("DbInfo Created");
+            _logger.LogInformation($"DbInfo Created {Util.SerializeJson(db)}");
             return db;
         }
 
@@ -327,15 +315,15 @@ namespace SGS.OAD.DB
 
         public DbInfoBuilder EnableLog()
         {
-            LoggerBuilder(true);
+            _logger = LoggerBuilder();
             return this;
         }
 
-        private void LoggerBuilder(bool isEnableLog)
+        private ILogger LoggerBuilder()
         {
             var fileLogger = new FileLogger(ConfigHelper.GetValue("LOG_PATH"));
             var consoleLogger = new ConsoleLogger();
-            _logger = new LoggerFactory(isEnableLog, fileLogger, consoleLogger);
+            return new LoggerFactory(fileLogger, consoleLogger);
         }
     }
 }
