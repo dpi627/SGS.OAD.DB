@@ -19,6 +19,5 @@ namespace SGS.OAD.DB.API.Controllers
                 return Ok(new { Data = "This is protected data" });
             }
         }
-
     }
 }

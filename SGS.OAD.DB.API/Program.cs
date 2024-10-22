@@ -84,6 +84,47 @@ public class Program
                     Description = "API 說明文件"
                 });
                 c.SchemaFilter<EnumSchemaFilter>();
+
+                // 配置 Swagger 使用 JWT
+                var securityScheme = new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Please enter JWT with Bearer into field like: Bearer {token}",
+
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                };
+
+                var securityRequirement = new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    };
+
+                c.AddSecurityDefinition("Bearer", securityScheme);
+                c.AddSecurityRequirement(securityRequirement);
+
+                // 確保顯示被 [Authorize] 標記的 API
+                c.DocInclusionPredicate((docName, apiDesc) =>
+                {
+                    return true; // 返回 true 確保所有端點被包括
+                });
             });
             builder.Services.AddCors(options =>
             {
@@ -132,15 +173,15 @@ public class Program
             var app = builder.Build();
 
             // 配置 Swagger 中介軟體
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "APIv1");
-                    c.RoutePrefix = string.Empty; // 設定 Swagger UI 在應用程式根目錄
-                });
-            }
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI(c =>
+            //    {
+            //        c.SwaggerEndpoint("/swagger/v1/swagger.json", "APIv1");
+            //        c.RoutePrefix = string.Empty; // 設定 Swagger UI 在應用程式根目錄
+            //    });
+            //}
 
             app.UseSerilogRequestLogging();
             app.UseCors("AllowAll");
