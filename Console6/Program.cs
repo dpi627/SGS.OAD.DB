@@ -13,7 +13,7 @@ internal class Program
         var builder = DbInfoBuilder.Init()
             .SetServer("TWDB009")
             .SetDatabase("SGSLims_chem")
-            //.EnableLog()
+            .EnableLog()
             .SetAppName(appName);
 
         DbInfo db;
@@ -28,19 +28,19 @@ internal class Program
                 builder = DbInfoBuilder.Init()
                     .SetServer("TWDB021")
                     .SetDatabase("LIMS20_TPE")
-                    //.EnableLog()
+                    .EnableLog()
                     .SetDatabaseRole(DatabaseRole.db_filewriter);
             }
-            else if (i == 5)
+            else if (i == 4)
             {
                 // 存取原本資料庫
                 Console.WriteLine("(Back to Original Database)");
                 builder = DbInfoBuilder.Init()
                     .SetServer("TWDB009")
-                    //.EnableLog()
+                    .EnableLog()
                     .SetDatabase("SGSLims_chem");
             }
-            else if (i == 6)
+            else if (i == 5)
             {
                 // 清除快取
                 builder.ClearCache();

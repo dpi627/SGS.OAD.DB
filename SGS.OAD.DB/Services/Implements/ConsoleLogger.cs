@@ -22,7 +22,18 @@
 
         private static void LogToConsole(string message, LogLevel logLevel)
         {
-            Console.WriteLine($"[{logLevel}] {DateTime.Now:yyyy/MM/dd HH:mm:ss}: {message}");
+            ConsoleColor originalColor = Console.ForegroundColor;
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write($"[{logLevel}] ");
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write($"{DateTime.Now:yyyy/MM/dd HH:mm:ss} ");
+
+            Console.ForegroundColor = originalColor;
+            Console.WriteLine(message);
+
+            Console.ResetColor();
         }
     }
 }
