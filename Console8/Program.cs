@@ -13,6 +13,7 @@ internal class Program
         var builder = DbInfoBuilder.Init()
             .SetServer("TWDB009")
             .SetDatabase("SGSLims_chem")
+            .EnableLog()
             .SetAppName(appName); // suggest to add
 
         // build database object
