@@ -11,6 +11,10 @@ using SGS.OAD.DB.API.Filter;
 using SGS.OAD.DB.API.Mapper;
 using SGS.OAD.DB.API.Repositories.Interfaces;
 using SGS.OAD.DB.API.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using SGS.OAD.DB.API.Services;
 
 namespace SGS.OAD.DB.API;
 
@@ -92,6 +96,27 @@ public class Program
                     });
             });
 
+            // 設定 JWT 驗證
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                };
+            });
+            builder.Services.AddAuthorization();
+
             // 註冊 DbContext，使用您的連接字串
             builder.Services.AddDbContext<SGSLims_chemContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -101,6 +126,8 @@ public class Program
 
             // 註冊 Service
             builder.Services.AddScoped<Services.Interfaces.IUserInfoService, Services.UserInfoService>();
+            // 註冊 JwtService
+            builder.Services.AddSingleton<JwtService>();
 
             var app = builder.Build();
 
@@ -119,6 +146,7 @@ public class Program
             app.UseCors("AllowAll");
             app.UseSwagger();
             app.UseSwaggerUI();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
 
