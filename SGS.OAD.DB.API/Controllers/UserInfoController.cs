@@ -12,7 +12,7 @@ namespace SGS.OAD.DB.API.Controllers
         Services.Interfaces.IUserInfoService userInfoService,
         IMapper mapper,
         ILogger<UserInfoController> logger
-        ) : Controller
+        ) : ControllerBase
     {
         [HttpGet]
         public ActionResult<UserInfoEncryptResponse> Get([FromQuery] UserInfoEncryptRequest req)

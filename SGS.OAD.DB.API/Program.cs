@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using SGS.OAD.DB.API.Services;
+using SGS.OAD.DB.API.Configurations;
 
 namespace SGS.OAD.DB.API;
 
@@ -65,67 +66,8 @@ public class Program
                     options.JsonSerializerOptions.PropertyNamingPolicy = null;
                 });
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(c =>
-            {
-                // 取得 XML 文件的路徑
-                var xmlFile = $"{appName}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-
-                // 加入 XML 註解
-                if (File.Exists(xmlPath))
-                {
-                    c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
-                }
-
-                c.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Title = appName,
-                    Version = "v1",
-                    Description = "API 說明文件"
-                });
-                c.SchemaFilter<EnumSchemaFilter>();
-
-                // 配置 Swagger 使用 JWT
-                var securityScheme = new OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header,
-                    Description = "Please enter JWT with Bearer into field like: Bearer {token}",
-
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    }
-                };
-
-                var securityRequirement = new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] { }
-        }
-    };
-
-                c.AddSecurityDefinition("Bearer", securityScheme);
-                c.AddSecurityRequirement(securityRequirement);
-
-                // 確保顯示被 [Authorize] 標記的 API
-                c.DocInclusionPredicate((docName, apiDesc) =>
-                {
-                    return true; // 返回 true 確保所有端點被包括
-                });
-            });
+            builder.Services.ConfigureSwagger(appName);
+            
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
