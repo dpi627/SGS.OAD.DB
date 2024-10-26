@@ -13,6 +13,7 @@ namespace SGS.OAD.DB.API.Configurations
                 SetApiDoc(c, appName);
                 SetJwt(c);
                 SetApiKey(c);
+                c.OperationFilter<AuthorizeOperationFilter>();
             });
         }
 
@@ -71,7 +72,9 @@ namespace SGS.OAD.DB.API.Configurations
             };
 
             c.AddSecurityDefinition("Bearer", securityScheme);
-            c.AddSecurityRequirement(securityRequirement);
+            //c.AddSecurityRequirement(securityRequirement);
+            // 註冊自訂的 OperationFilter
+            c.OperationFilter<AuthorizeOperationFilter>();
         }
 
         // 設置 API Key 認證
@@ -106,7 +109,7 @@ namespace SGS.OAD.DB.API.Configurations
             };
 
             c.AddSecurityDefinition("ApiKey", apiKeyScheme);
-            c.AddSecurityRequirement(apiKeyRequirement);
+            //c.AddSecurityRequirement(apiKeyRequirement);
         }
     }
 }

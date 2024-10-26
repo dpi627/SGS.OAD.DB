@@ -23,7 +23,7 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var appName = Assembly.GetExecutingAssembly().GetName().Name;
+        var appName = Assembly.GetExecutingAssembly().GetName().Name ?? "SYSOP";
 
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console() //開發期間可參考，部署後考不用
@@ -67,7 +67,7 @@ public class Program
                 });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.ConfigureSwagger(appName);
-            
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
