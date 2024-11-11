@@ -16,6 +16,11 @@
         public string Database { get; set; }
 
         /// <summary>
+        /// 應用程式名稱
+        /// </summary>
+        public string AppName { get; set; }
+
+        /// <summary>
         /// 程式語言
         /// </summary>
         public ProgramLanguage Language { get; set; } = ProgramLanguage.Csharp;

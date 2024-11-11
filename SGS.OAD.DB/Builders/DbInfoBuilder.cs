@@ -129,6 +129,7 @@ namespace SGS.OAD.DB
         public DbInfoBuilder SetAppName(string appName)
         {
             _appName = appName;
+            _apiUrlBuilder.SetAppName(appName);
             return this;
         }
 

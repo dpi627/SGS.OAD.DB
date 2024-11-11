@@ -11,11 +11,14 @@
         private string _endpoint;
         private string _server;
         private string _database;
+        private string _appName;
         private ProgramLanguage _language = ProgramLanguage.Csharp;
         private DatabaseRole _role = DatabaseRole.db_datawriter;
         private readonly string _pattern;
 
         private ApiUrlBuilder() {
+            // 取得預設應用程式名稱
+            _appName = ConfigHelper.GetValue("APP_NAME");
             // 先設定 Http 或 Https 以及 WCF 或 WebAPI
             _protocal = ConfigHelper.GetValue("API_PROTOCAL", _protocal);
             _type = ConfigHelper.GetValue("API_TYPE", _type);
@@ -58,6 +61,12 @@
         public ApiUrlBuilder SetDatabase(string database)
         {
             _database = database;
+            return this;
+        }
+
+        public ApiUrlBuilder SetAppName(string appName)
+        {
+            _appName = appName;
             return this;
         }
 
@@ -123,6 +132,7 @@
                 Endpoint = _endpoint,
                 Server = _server,
                 Database = _database,
+                AppName = _appName,
                 Language = _language,
                 Role = _role,
                 Url = Util.ReplaceVariables(
@@ -130,6 +140,7 @@
                     ("endpoint", _endpoint),
                     ("server", _server),
                     ("database", _database),
+                    ("app", _appName),
                     ("language", _language),
                     ("role", _role),
                     ("algorithm", _algorithm)

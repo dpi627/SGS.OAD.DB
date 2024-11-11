@@ -15,7 +15,7 @@
   <API_ENDPOINT_WCF_HTTPS><![CDATA[https://twws006.sgs.net/DecryptService/ServiceDecryptPW.svc/Get_Decrypt4]]></API_ENDPOINT_WCF_HTTPS>
   <API_ENDPOINT_WEBAPI_HTTP><![CDATA[http://twws006/db/UserInfo]]></API_ENDPOINT_WEBAPI_HTTP>
   <API_ENDPOINT_WEBAPI_HTTPS><![CDATA[https://twws006.sgs.net/db/UserInfo]]></API_ENDPOINT_WEBAPI_HTTPS>
-  <API_URL_PATTERN><![CDATA[{endpoint}?ServerName={server}&DatabaseName={database}&PLanguage={language}&DatabaseRole={role}&Algorithm={algorithm}]]></API_URL_PATTERN>
+  <API_URL_PATTERN><![CDATA[{endpoint}?ServerName={server}&DatabaseName={database}&PLanguage={language}&DatabaseRole={role}&Algorithm={algorithm}&AppName={app}]]></API_URL_PATTERN>
   <!-- /api settings -->
   <!-- uat and prd web api for backup
   <API_ENDPOINT_WEBAPI_HTTP><![CDATA[http://twtpeoad002/db/UserInfo]]></API_ENDPOINT_WEBAPI_HTTP>
